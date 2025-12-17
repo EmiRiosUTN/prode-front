@@ -123,7 +123,7 @@ export const adminCompetitionsApi = {
         if (USE_MOCK) {
             return mockApi.getCompetitions();
         }
-        const response = await apiClient.get<ApiResponse<Competition[]>>('/admin/competitions/public');
+        const response = await apiClient.get<ApiResponse<Competition[]>>('/admin/competitions');
         return response.data;
     },
 
@@ -150,11 +150,12 @@ export const adminCompetitionsApi = {
 
 export interface CreateMatchRequest {
     competitionId: string;
-    teamAId: string;
-    teamBId: string;
+    teamA: string;
+    teamB: string;
     matchDate: string;
     stage: string;
     location?: string;
+    status?: 'scheduled' | 'in_progress' | 'finished';
 }
 
 export interface UpdateMatchRequest {

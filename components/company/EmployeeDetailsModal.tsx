@@ -79,21 +79,6 @@ export function EmployeeDetailsModal({ employee, open, onOpenChange }: EmployeeD
                         </div>
                     )}
 
-                    {/* Created Date */}
-                    <div className="flex items-start space-x-3">
-                        <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                        <div className="flex-1">
-                            <p className="text-sm font-medium text-muted-foreground">Fecha de Registro</p>
-                            <p className="text-base">
-                                {new Date(employee.createdAt).toLocaleDateString('es-AR', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}
-                            </p>
-                        </div>
-                    </div>
-
                     {/* Status */}
                     <div className="flex items-start space-x-3">
                         <div className="h-5 w-5 flex items-center justify-center mt-0.5">

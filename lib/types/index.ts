@@ -74,10 +74,14 @@ export interface Competition {
     id: string;
     name: string;
     slug: string;
-    startDate: string;
-    endDate: string;
-    sportType: SportType;
+    start_date: string; // Backend uses snake_case
+    end_date: string;   // Backend uses snake_case
+    sport_type?: string; // Backend uses snake_case
     isActive: boolean;
+    _count?: {
+        matches: number;
+        prodes: number;
+    };
     createdAt: string;
     updatedAt: string;
 }
@@ -95,19 +99,19 @@ export interface Team {
 // Match entity
 export interface Match {
     id: string;
-    competitionId: string;
+    competition_id: string; // Backend uses snake_case
     competition?: Competition;
-    teamAId: string;
-    teamA?: Team;
-    teamBId: string;
-    teamB?: Team;
-    matchDate: string;
+    team_a_id: string; // Backend uses snake_case
+    team_a?: Team; // Backend uses snake_case
+    team_b_id: string; // Backend uses snake_case
+    team_b?: Team; // Backend uses snake_case
+    match_date: string; // Backend uses snake_case
     stage: string;
     location?: string;
     status: MatchStatus;
-    result?: MatchResult;
-    createdAt: string;
-    updatedAt: string;
+    match_result?: MatchResult; // Backend uses snake_case
+    created_at: string; // Backend uses snake_case
+    updated_at: string; // Backend uses snake_case
 }
 
 // Match Result entity

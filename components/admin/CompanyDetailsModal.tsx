@@ -59,7 +59,6 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
         try {
             await adminCompaniesApi.update(company.id, {
                 name,
-                slug,
                 corporateDomain: corporateDomain || undefined,
                 logoUrl: logoUrl || undefined,
                 primaryColor,
@@ -78,7 +77,6 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
     const handleCancel = () => {
         if (company) {
             setName(company.name);
-            setSlug(company.slug);
             setCorporateDomain(company.corporateDomain || '');
             setLogoUrl(company.logoUrl || '');
             setPrimaryColor(company.primaryColor || '#1976d2');
@@ -128,24 +126,6 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                             />
                         ) : (
                             <p className="text-base font-semibold">{company.name}</p>
-                        )}
-                    </div>
-
-                    {/* Slug */}
-                    <div className="space-y-2">
-                        <Label htmlFor="slug" className="flex items-center">
-                            <Globe className="h-4 w-4 mr-2" />
-                            Slug (Subdominio)
-                        </Label>
-                        {isEditMode ? (
-                            <Input
-                                id="slug"
-                                value={slug}
-                                onChange={(e) => setSlug(e.target.value)}
-                                disabled={isLoading}
-                            />
-                        ) : (
-                            <p className="text-base">{company.slug}</p>
                         )}
                     </div>
 

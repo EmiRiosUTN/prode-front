@@ -73,7 +73,7 @@ export function CreateCompetitionModal({ isOpen, onClose, onSubmit }: CreateComp
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
                 <div className="p-6">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">

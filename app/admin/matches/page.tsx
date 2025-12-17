@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Loader2, Calendar, MapPin } from 'lucide-react';
 import { formatDateTime } from '@/lib/utils';
 import { CreateMatchModal } from '@/components/admin/CreateMatchModal';
+import { MatchDetailsModal } from '@/components/admin/MatchDetailsModal';
 
 export default function AdminMatchesPage() {
     const [matches, setMatches] = useState<Match[]>([]);
@@ -17,6 +18,8 @@ export default function AdminMatchesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+    const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
     useEffect(() => {
         loadCompetitions();
@@ -115,7 +118,7 @@ export default function AdminMatchesPage() {
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <CardTitle className="text-lg">
-                                            {match.teamA?.name || 'Equipo A'} vs {match.teamB?.name || 'Equipo B'}
+                                            {match.team_a?.name || 'Equipo A'} vs {match.team_b?.name || 'Equipo B'}
                                         </CardTitle>
                                         <CardDescription className="mt-1">
                                             {match.competition?.name} - {match.stage}
@@ -143,7 +146,7 @@ export default function AdminMatchesPage() {
                                     <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div className="flex items-center text-muted-foreground">
                                             <Calendar className="h-4 w-4 mr-2" />
-                                            <span>{formatDateTime(match.matchDate)}</span>
+                                            <span>{formatDateTime(match.match_date)}</span>
                                         </div>
                                         {match.location && (
                                             <div className="flex items-center text-muted-foreground">
@@ -154,21 +157,28 @@ export default function AdminMatchesPage() {
                                     </div>
 
                                     {/* Result if available */}
-                                    {match.result && (
+                                    {match.match_result && (
                                         <div className="bg-slate-50 rounded-md p-3">
                                             <div className="flex items-center justify-center space-x-8 text-lg font-semibold">
-                                                <span>{match.teamA?.name}</span>
+                                                <span>{match.team_a?.name}</span>
                                                 <span className="text-2xl">
-                                                    {match.result.goalsTeamA} - {match.result.goalsTeamB}
+                                                    {match.match_result.goalsTeamA} - {match.match_result.goalsTeamB}
                                                 </span>
-                                                <span>{match.teamB?.name}</span>
+                                                <span>{match.team_b?.name}</span>
                                             </div>
                                         </div>
                                     )}
 
                                     {/* Actions */}
                                     <div className="pt-2 flex space-x-2">
-                                        <Button variant="outline" size="sm">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                setSelectedMatch(match);
+                                                setDetailsModalOpen(true);
+                                            }}
+                                        >
                                             Ver Detalles
                                         </Button>
                                         {match.status !== 'finished' && (
@@ -176,9 +186,6 @@ export default function AdminMatchesPage() {
                                                 Cargar Resultado
                                             </Button>
                                         )}
-                                        <Button variant="outline" size="sm">
-                                            Editar
-                                        </Button>
                                     </div>
                                 </div>
                             </CardContent>
@@ -191,6 +198,14 @@ export default function AdminMatchesPage() {
             <CreateMatchModal
                 open={createModalOpen}
                 onOpenChange={setCreateModalOpen}
+                onSuccess={loadMatches}
+            />
+
+            {/* Match Details Modal */}
+            <MatchDetailsModal
+                match={selectedMatch}
+                open={detailsModalOpen}
+                onOpenChange={setDetailsModalOpen}
                 onSuccess={loadMatches}
             />
         </div>

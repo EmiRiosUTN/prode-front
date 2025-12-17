@@ -135,7 +135,11 @@ export default function CompanyAreasPage() {
                             <CardContent>
                                 <div className="space-y-3">
                                     <div className="text-sm text-muted-foreground">
-                                        {area._count?.employees || 0} empleados
+                                        {area._count?.employees && area._count.employees > 1 || area._count?.employees === 0 ? (
+                                            <span>{area._count?.employees} empleados</span>
+                                        ) : (
+                                            <span>{area._count?.employees} empleado</span>
+                                        )}
                                     </div>
 
                                     <div className="flex items-center justify-between">
@@ -195,11 +199,11 @@ export default function CompanyAreasPage() {
                         <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                         <AlertDialogDescription>
                             Esta acción eliminará el área "{areaToDelete?.name}".
-                            {areaToDelete?._count?.employees && areaToDelete._count.employees > 0 && (
+                            {areaToDelete?._count?.employees && areaToDelete._count.employees > 0 ? (
                                 <span className="block mt-2 text-destructive font-medium">
                                     Esta área tiene {areaToDelete._count.employees} empleado(s) asignado(s).
                                 </span>
-                            )}
+                            ) : null }
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

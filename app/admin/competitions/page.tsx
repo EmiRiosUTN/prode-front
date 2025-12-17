@@ -9,12 +9,15 @@ import { Button } from '@/components/ui/button';
 import { Plus, Trophy, Loader2, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CreateCompetitionModal, type CompetitionFormData } from '@/components/admin/CreateCompetitionModal';
+import { CompetitionDetailsModal } from '@/components/admin/CompetitionDetailsModal';
 
 export default function AdminCompetitionsPage() {
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+    const [selectedCompetition, setSelectedCompetition] = useState<Competition | null>(null);
 
     useEffect(() => {
         loadCompetitions();
@@ -103,18 +106,18 @@ export default function AdminCompetitionsPage() {
                                     <div className="space-y-2 text-sm">
                                         <div className="flex items-center text-muted-foreground">
                                             <Calendar className="h-4 w-4 mr-2" />
-                                            <span>Inicio: {formatDate(competition.startDate)}</span>
+                                            <span>Inicio: {formatDate(competition.start_date)}</span>
                                         </div>
                                         <div className="flex items-center text-muted-foreground">
                                             <Calendar className="h-4 w-4 mr-2" />
-                                            <span>Fin: {formatDate(competition.endDate)}</span>
+                                            <span>Fin: {formatDate(competition.end_date)}</span>
                                         </div>
                                     </div>
 
                                     {/* Sport Type */}
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm text-muted-foreground capitalize">
-                                            {competition.sportType}
+                                            {competition.sport_type}
                                         </span>
                                         <span
                                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${competition.isActive
@@ -128,11 +131,16 @@ export default function AdminCompetitionsPage() {
 
                                     {/* Actions */}
                                     <div className="pt-2 flex space-x-2">
-                                        <Button variant="outline" size="sm" className="flex-1">
-                                            Ver Partidos
-                                        </Button>
-                                        <Button variant="outline" size="sm" className="flex-1">
-                                            Editar
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="flex-1"
+                                            onClick={() => {
+                                                setSelectedCompetition(competition);
+                                                setDetailsModalOpen(true);
+                                            }}
+                                        >
+                                            Ver Detalles
                                         </Button>
                                     </div>
                                 </div>
@@ -146,6 +154,14 @@ export default function AdminCompetitionsPage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleCreateCompetition}
+            />
+
+            {/* Competition Details Modal */}
+            <CompetitionDetailsModal
+                competition={selectedCompetition}
+                open={detailsModalOpen}
+                onOpenChange={setDetailsModalOpen}
+                onSuccess={loadCompetitions}
             />
         </div>
     );
