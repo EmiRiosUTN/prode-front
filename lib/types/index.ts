@@ -38,20 +38,21 @@ export interface Company {
     id: string;
     name: string;
     slug: string;
-    corporateDomain?: string;
-    requireCorporateEmail: boolean;
-    logoUrl?: string;
-    primaryColor?: string;
-    secondaryColor?: string;
-    isActive: boolean;
-    adminUser?: User;
+    corporate_domain?: string; // Backend uses snake_case
+    require_corporate_email: boolean; // Backend uses snake_case
+    logo_url?: string; // Backend uses snake_case
+    primary_color?: string; // Backend uses snake_case
+    secondary_color?: string; // Backend uses snake_case
+    is_active: boolean; // Backend uses snake_case
+    admin_user_id?: string; // Backend uses snake_case
+    admin_user?: User; // Backend uses snake_case
     _count?: {
         areas: number;
         employees: number;
         prodes: number;
     };
-    createdAt: string;
-    updatedAt: string;
+    created_at: string; // Backend uses snake_case
+    updated_at: string; // Backend uses snake_case
 }
 
 // Company Area entity

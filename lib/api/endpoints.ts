@@ -52,23 +52,23 @@ export const authApi = {
 export interface CreateCompanyRequest {
     name: string;
     slug: string;
-    corporateDomain?: string;
-    requireCorporateEmail?: boolean;
-    logoUrl?: string;
-    primaryColor?: string;
-    secondaryColor?: string;
+    corporate_domain?: string; // Backend uses snake_case
+    require_corporate_email?: boolean; // Backend uses snake_case
+    logo_url?: string; // Backend uses snake_case
+    primary_color?: string; // Backend uses snake_case
+    secondary_color?: string; // Backend uses snake_case
     adminEmail: string;
     adminPassword: string;
 }
 
 export interface UpdateCompanyRequest {
     name?: string;
-    corporateDomain?: string;
-    requireCorporateEmail?: boolean;
-    logoUrl?: string;
-    primaryColor?: string;
-    secondaryColor?: string;
-    isActive?: boolean;
+    corporateDomain?: string; // Backend actually uses camelCase
+    requireCorporateEmail?: boolean; // Backend actually uses camelCase
+    logoUrl?: string; // Backend actually uses camelCase
+    primaryColor?: string; // Backend actually uses camelCase
+    secondaryColor?: string; // Backend actually uses camelCase
+    isActive?: boolean; // Backend actually uses camelCase
 }
 
 export const adminCompaniesApi = {

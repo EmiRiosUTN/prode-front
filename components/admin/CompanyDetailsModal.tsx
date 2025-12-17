@@ -29,22 +29,13 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Form fields
+    // Form fields (only editable ones)
     const [name, setName] = useState('');
-    const [slug, setSlug] = useState('');
-    const [corporateDomain, setCorporateDomain] = useState('');
-    const [logoUrl, setLogoUrl] = useState('');
-    const [primaryColor, setPrimaryColor] = useState('#1976d2');
-    const [secondaryColor, setSecondaryColor] = useState('#424242');
-
+    const [primaryColor, setPrimaryColor] = useState('');
     useEffect(() => {
         if (company) {
             setName(company.name);
-            setSlug(company.slug);
-            setCorporateDomain(company.corporateDomain || '');
-            setLogoUrl(company.logoUrl || '');
-            setPrimaryColor(company.primaryColor || '#1976d2');
-            setSecondaryColor(company.secondaryColor || '#424242');
+            setPrimaryColor(company.primary_color || '');
             setIsEditMode(false);
             setError(null);
         }
@@ -59,10 +50,7 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
         try {
             await adminCompaniesApi.update(company.id, {
                 name,
-                corporateDomain: corporateDomain || undefined,
-                logoUrl: logoUrl || undefined,
-                primaryColor,
-                secondaryColor,
+                primaryColor
             });
 
             setIsEditMode(false);
@@ -77,10 +65,7 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
     const handleCancel = () => {
         if (company) {
             setName(company.name);
-            setCorporateDomain(company.corporateDomain || '');
-            setLogoUrl(company.logoUrl || '');
-            setPrimaryColor(company.primaryColor || '#1976d2');
-            setSecondaryColor(company.secondaryColor || '#424242');
+            setPrimaryColor(company.primary_color || '');
         }
         setIsEditMode(false);
         setError(null);
@@ -129,39 +114,19 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                         )}
                     </div>
 
-                    {/* Corporate Domain */}
+                    {/* Corporate Domain - Read Only */}
                     <div className="space-y-2">
-                        <Label htmlFor="corporateDomain" className="flex items-center">
+                        <Label className="flex items-center">
                             <Mail className="h-4 w-4 mr-2" />
                             Dominio Corporativo
                         </Label>
-                        {isEditMode ? (
-                            <Input
-                                id="corporateDomain"
-                                value={corporateDomain}
-                                onChange={(e) => setCorporateDomain(e.target.value)}
-                                placeholder="ejemplo.com"
-                                disabled={isLoading}
-                            />
-                        ) : (
-                            <p className="text-base">{company.corporateDomain || 'No configurado'}</p>
-                        )}
+                        <p className="text-base">{company.corporate_domain || 'No configurado'}</p>
                     </div>
 
-                    {/* Logo URL */}
+                    {/* Logo URL - Read Only */}
                     <div className="space-y-2">
-                        <Label htmlFor="logoUrl">URL del Logo</Label>
-                        {isEditMode ? (
-                            <Input
-                                id="logoUrl"
-                                value={logoUrl}
-                                onChange={(e) => setLogoUrl(e.target.value)}
-                                placeholder="https://ejemplo.com/logo.png"
-                                disabled={isLoading}
-                            />
-                        ) : (
-                            <p className="text-base">{company.logoUrl || 'No configurado'}</p>
-                        )}
+                        <Label>URL del Logo</Label>
+                        <p className="text-base">{company.logo_url || 'No configurado'}</p>
                     </div>
 
                     {/* Colors */}
@@ -190,39 +155,23 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                                 <div className="flex items-center space-x-2">
                                     <div
                                         className="w-8 h-8 rounded border"
-                                        style={{ backgroundColor: company.primaryColor || '#1976d2' }}
+                                        style={{ backgroundColor: company.primary_color }}
                                     />
-                                    <span className="text-base">{company.primaryColor || '#1976d2'}</span>
+                                    <span className="text-base">{company.primary_color}</span>
                                 </div>
                             )}
                         </div>
 
+                        {/* Secondary Color - Read Only */}
                         <div className="space-y-2">
-                            <Label htmlFor="secondaryColor">Color Secundario</Label>
-                            {isEditMode ? (
-                                <div className="flex space-x-2">
-                                    <Input
-                                        type="color"
-                                        value={secondaryColor}
-                                        onChange={(e) => setSecondaryColor(e.target.value)}
-                                        className="w-16 h-10"
-                                        disabled={isLoading}
-                                    />
-                                    <Input
-                                        value={secondaryColor}
-                                        onChange={(e) => setSecondaryColor(e.target.value)}
-                                        disabled={isLoading}
-                                    />
-                                </div>
-                            ) : (
-                                <div className="flex items-center space-x-2">
-                                    <div
-                                        className="w-8 h-8 rounded border"
-                                        style={{ backgroundColor: company.secondaryColor || '#424242' }}
-                                    />
-                                    <span className="text-base">{company.secondaryColor || '#424242'}</span>
-                                </div>
-                            )}
+                            <Label>Color Secundario</Label>
+                            <div className="flex items-center space-x-2">
+                                <div
+                                    className="w-8 h-8 rounded border"
+                                    style={{ backgroundColor: company.secondary_color }}
+                                />
+                                <span className="text-base">{company.secondary_color}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -245,8 +194,8 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">Estado:</span>{' '}
-                                    <span className={`font-medium ${company.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                                        {company.isActive ? 'Activa' : 'Inactiva'}
+                                    <span className={`font-medium ${company.is_active ? 'text-green-600' : 'text-red-600'}`}>
+                                        {company.is_active ? 'Activa' : 'Inactiva'}
                                     </span>
                                 </div>
                             </div>

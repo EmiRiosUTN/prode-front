@@ -37,7 +37,18 @@ export default function AdminCompaniesPage() {
 
     const handleCreateCompany = async (data: CompanyFormData) => {
         try {
-            await adminCompaniesApi.create(data);
+            // Transform camelCase to snake_case for backend
+            await adminCompaniesApi.create({
+                name: data.name,
+                slug: data.slug,
+                corporate_domain: data.corporateDomain,
+                require_corporate_email: data.requireCorporateEmail,
+                logo_url: data.logoUrl,
+                primary_color: data.primaryColor,
+                secondary_color: data.secondaryColor,
+                adminEmail: data.adminEmail,
+                adminPassword: data.adminPassword,
+            });
             await loadCompanies(); // Reload list
         } catch (err) {
             throw new Error(getErrorMessage(err));
@@ -94,9 +105,9 @@ export default function AdminCompaniesPage() {
                                             {company.slug}
                                         </CardDescription>
                                     </div>
-                                    {company.logoUrl && (
+                                    {company.logo_url && (
                                         <img
-                                            src={company.logoUrl}
+                                            src={company.logo_url}
                                             alt={company.name}
                                             className="h-10 w-10 rounded object-contain"
                                         />
@@ -120,28 +131,28 @@ export default function AdminCompaniesPage() {
                                     {/* Status */}
                                     <div className="flex items-center justify-between">
                                         <span
-                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${company.isActive
+                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${company.is_active
                                                 ? 'bg-green-100 text-green-800'
                                                 : 'bg-red-100 text-red-800'
                                                 }`}
                                         >
-                                            {company.isActive ? 'Activa' : 'Inactiva'}
+                                            {company.is_active ? 'Activa' : 'Inactiva'}
                                         </span>
                                     </div>
 
-                                    {(company.primaryColor || company.secondaryColor) && (
+                                    {(company.primary_color || company.secondary_color) && (
                                         <div className="flex items-center space-x-2">
-                                            {company.primaryColor && (
+                                            {company.primary_color && (
                                                 <div
                                                     className="h-6 w-6 rounded border border-slate-200"
-                                                    style={{ backgroundColor: company.primaryColor }}
+                                                    style={{ backgroundColor: company.primary_color }}
                                                     title="Color primario"
                                                 />
                                             )}
-                                            {company.secondaryColor && (
+                                            {company.secondary_color && (
                                                 <div
                                                     className="h-6 w-6 rounded border border-slate-200"
-                                                    style={{ backgroundColor: company.secondaryColor }}
+                                                    style={{ backgroundColor: company.secondary_color }}
                                                     title="Color secundario"
                                                 />
                                             )}
