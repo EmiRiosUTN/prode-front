@@ -36,7 +36,7 @@ export function EmployeeDetailsModal({ employee, open, onOpenChange }: EmployeeD
                         <div className="flex-1">
                             <p className="text-sm font-medium text-muted-foreground">Nombre Completo</p>
                             <p className="text-base font-semibold">
-                                {employee.firstName} {employee.lastName}
+                                {employee.first_name} {employee.last_name}
                             </p>
                         </div>
                     </div>
@@ -82,12 +82,12 @@ export function EmployeeDetailsModal({ employee, open, onOpenChange }: EmployeeD
                     {/* Status */}
                     <div className="flex items-start space-x-3">
                         <div className="h-5 w-5 flex items-center justify-center mt-0.5">
-                            <div className={`h-3 w-3 rounded-full ${employee.isBlocked ? 'bg-red-500' : 'bg-green-500'}`} />
+                            <div className={`h-3 w-3 rounded-full ${employee.is_blocked ? 'bg-red-500' : 'bg-green-500'}`} />
                         </div>
                         <div className="flex-1">
                             <p className="text-sm font-medium text-muted-foreground">Estado</p>
                             <p className="text-base font-semibold">
-                                {employee.isBlocked ? 'Bloqueado' : 'Activo'}
+                                {employee.is_blocked ? 'Bloqueado' : 'Activo'}
                             </p>
                         </div>
                     </div>

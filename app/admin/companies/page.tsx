@@ -37,15 +37,15 @@ export default function AdminCompaniesPage() {
 
     const handleCreateCompany = async (data: CompanyFormData) => {
         try {
-            // Transform camelCase to snake_case for backend
+            // Data is already in camelCase, pass it directly
             await adminCompaniesApi.create({
                 name: data.name,
                 slug: data.slug,
-                corporate_domain: data.corporateDomain,
-                require_corporate_email: data.requireCorporateEmail,
-                logo_url: data.logoUrl,
-                primary_color: data.primaryColor,
-                secondary_color: data.secondaryColor,
+                corporateDomain: data.corporateDomain,
+                requireCorporateEmail: data.requireCorporateEmail,
+                logoUrl: data.logoUrl,
+                primaryColor: data.primaryColor,
+                secondaryColor: data.secondaryColor,
                 adminEmail: data.adminEmail,
                 adminPassword: data.adminPassword,
             });

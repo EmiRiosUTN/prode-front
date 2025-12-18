@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Loader2, Trophy, Plus, Calendar, Users, Edit, Trash2 } from 'lucide-react';
 import { CreateProdeModal } from '@/components/company/CreateProdeModal';
+import { EditProdeModal } from '@/components/company/EditProdeModal';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -24,6 +25,7 @@ export default function CompanyProdesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [editingProde, setEditingProde] = useState<Prode | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [prodeToDelete, setProdeToDelete] = useState<Prode | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -146,17 +148,22 @@ export default function CompanyProdesPage() {
 
                                     <div className="flex items-center justify-between">
                                         <span
-                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${prode.isActive
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-red-100 text-red-800'
+                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${prode.is_active
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800'
                                                 }`}
                                         >
-                                            {prode.isActive ? 'Activo' : 'Inactivo'}
+                                            {prode.is_active ? 'Activo' : 'Inactivo'}
                                         </span>
                                     </div>
 
                                     <div className="pt-2 flex space-x-2">
-                                        <Button variant="outline" size="sm" className="flex-1">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="flex-1"
+                                            onClick={() => setEditingProde(prode)}
+                                        >
                                             <Edit className="h-4 w-4 mr-1" />
                                             Editar
                                         </Button>
@@ -181,6 +188,16 @@ export default function CompanyProdesPage() {
                 open={createModalOpen}
                 onOpenChange={setCreateModalOpen}
                 onSuccess={loadProdes}
+            />
+
+            <EditProdeModal
+                prode={editingProde}
+                open={!!editingProde}
+                onOpenChange={(open) => !open && setEditingProde(null)}
+                onSuccess={() => {
+                    loadProdes();
+                    setEditingProde(null);
+                }}
             />
 
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

@@ -44,9 +44,9 @@ export default function CompanyConfigPage() {
             setSuccess(false);
 
             await companyApi.updateConfig({
-                logoUrl: config.logoUrl,
-                primaryColor: config.primaryColor,
-                secondaryColor: config.secondaryColor,
+                logoUrl: config.logo_url,
+                primaryColor: config.primary_color,
+                secondaryColor: config.secondary_color,
             });
 
             setSuccess(true);
@@ -124,15 +124,15 @@ export default function CompanyConfigPage() {
                             <Label htmlFor="logoUrl">URL del Logo</Label>
                             <Input
                                 id="logoUrl"
-                                value={config.logoUrl || ''}
-                                onChange={(e) => setConfig({ ...config, logoUrl: e.target.value })}
+                                value={config.logo_url || ''}
+                                onChange={(e) => setConfig({ ...config, logo_url: e.target.value })}
                                 placeholder="https://ejemplo.com/logo.png"
                                 disabled={isSaving}
                             />
-                            {config.logoUrl && (
+                            {config.logo_url && (
                                 <div className="mt-2">
                                     <img
-                                        src={config.logoUrl}
+                                        src={config.logo_url}
                                         alt="Logo preview"
                                         className="h-16 w-auto object-contain border rounded p-2"
                                     />
@@ -148,14 +148,14 @@ export default function CompanyConfigPage() {
                                     <Input
                                         id="primaryColor"
                                         type="color"
-                                        value={config.primaryColor || '#1976d2'}
-                                        onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
+                                        value={config.primary_color || '#1976d2'}
+                                        onChange={(e) => setConfig({ ...config, primary_color: e.target.value })}
                                         className="w-16 h-10"
                                         disabled={isSaving}
                                     />
                                     <Input
-                                        value={config.primaryColor || '#1976d2'}
-                                        onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
+                                        value={config.primary_color || '#1976d2'}
+                                        onChange={(e) => setConfig({ ...config, primary_color: e.target.value })}
                                         placeholder="#1976d2"
                                         disabled={isSaving}
                                     />
@@ -168,14 +168,14 @@ export default function CompanyConfigPage() {
                                     <Input
                                         id="secondaryColor"
                                         type="color"
-                                        value={config.secondaryColor || '#424242'}
-                                        onChange={(e) => setConfig({ ...config, secondaryColor: e.target.value })}
+                                        value={config.secondary_color || '#424242'}
+                                        onChange={(e) => setConfig({ ...config, secondary_color: e.target.value })}
                                         className="w-16 h-10"
                                         disabled={isSaving}
                                     />
                                     <Input
-                                        value={config.secondaryColor || '#424242'}
-                                        onChange={(e) => setConfig({ ...config, secondaryColor: e.target.value })}
+                                        value={config.secondary_color || '#424242'}
+                                        onChange={(e) => setConfig({ ...config, secondary_color: e.target.value })}
                                         placeholder="#424242"
                                         disabled={isSaving}
                                     />

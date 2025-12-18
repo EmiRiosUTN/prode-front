@@ -12,6 +12,7 @@ import {
     Employee,
     Prode,
     Prediction,
+    PredictionVariable,
 } from '@/lib/types';
 import { mockApi } from '@/lib/mock/api';
 
@@ -52,11 +53,11 @@ export const authApi = {
 export interface CreateCompanyRequest {
     name: string;
     slug: string;
-    corporate_domain?: string; // Backend uses snake_case
-    require_corporate_email?: boolean; // Backend uses snake_case
-    logo_url?: string; // Backend uses snake_case
-    primary_color?: string; // Backend uses snake_case
-    secondary_color?: string; // Backend uses snake_case
+    corporateDomain?: string; // Backend actually uses camelCase
+    requireCorporateEmail?: boolean; // Backend actually uses camelCase
+    logoUrl?: string; // Backend actually uses camelCase
+    primaryColor?: string; // Backend actually uses camelCase
+    secondaryColor?: string; // Backend actually uses camelCase
     adminEmail: string;
     adminPassword: string;
 }
@@ -127,6 +128,11 @@ export const adminCompetitionsApi = {
         return response.data;
     },
 
+    getAllPublic: async () => {
+        const response = await apiClient.get<ApiResponse<Competition[]>>('/admin/competitions/public');
+        return response.data;
+    },
+
     getById: async (id: string) => {
         const response = await apiClient.get<ApiResponse<Competition>>(`/admin/competitions/${id}`);
         return response.data;
@@ -142,8 +148,18 @@ export const adminCompetitionsApi = {
         return response.data;
     },
 
+
+
     delete: async (id: string) => {
         const response = await apiClient.delete<ApiResponse<void>>(`/admin/competitions/${id}`);
+        return response.data;
+    },
+};
+
+// Prediction Variables API
+export const predictionVariablesApi = {
+    getAll: async () => {
+        const response = await apiClient.get<ApiResponse<PredictionVariable[]>>('/admin/prediction-variables');
         return response.data;
     },
 };
@@ -278,27 +294,20 @@ export const companyApi = {
         description?: string;
         competitionId: string;
         participationMode: 'general' | 'by_area' | 'both';
+        variableConfigs: Array<{
+            predictionVariableId: string;
+            points: number;
+            isActive?: boolean;
+        }>;
     }) => {
-        // For now, send a minimal default configuration
-        // TODO: Add proper variable configuration UI later
-        const payload = {
-            ...data,
-            variableConfigs: [
-                {
-                    predictionVariableId: '00000000-0000-0000-0000-000000000001', // Default result prediction
-                    points: 3,
-                    isActive: true
-                }
-            ]
-        };
-        const response = await apiClient.post<ApiResponse<Prode>>('/company/prodes', payload);
+        const response = await apiClient.post<ApiResponse<Prode>>('/company/prodes', data);
         return response.data;
     },
 
     updateProde: async (id: string, data: {
         name?: string;
         description?: string;
-        participationMode?: 'general' | 'by_area' | 'both';
+        isActive?: boolean;
     }) => {
         const response = await apiClient.put<ApiResponse<Prode>>(`/company/prodes/${id}`, data);
         return response.data;

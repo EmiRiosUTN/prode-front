@@ -75,7 +75,7 @@ export default function CompanyEmployeesPage() {
     };
 
     const handleToggleBlockClick = (employee: Employee) => {
-        if (employee.isBlocked) {
+        if (employee.is_blocked) {
             // Unblock directly without confirmation
             handleToggleBlock(employee);
         } else {
@@ -88,7 +88,7 @@ export default function CompanyEmployeesPage() {
     const handleToggleBlock = async (employee: Employee) => {
         setTogglingId(employee.id);
         try {
-            if (employee.isBlocked) {
+            if (employee.is_blocked) {
                 await companyApi.unblockEmployee(employee.id);
             } else {
                 await companyApi.blockEmployee(employee.id);
@@ -181,7 +181,7 @@ export default function CompanyEmployeesPage() {
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <CardTitle className="text-lg">
-                                            {employee.firstName} {employee.lastName}
+                                            {employee.first_name} {employee.last_name}
                                         </CardTitle>
                                         {employee.area && (
                                             <CardDescription className="mt-1 flex items-center">
@@ -211,12 +211,12 @@ export default function CompanyEmployeesPage() {
 
                                     <div className="pt-2">
                                         <span
-                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${employee.isBlocked
+                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${employee.is_blocked
                                                 ? 'bg-red-100 text-red-800'
                                                 : 'bg-green-100 text-green-800'
                                                 }`}
                                         >
-                                            {employee.isBlocked ? 'Bloqueado' : 'Activo'}
+                                            {employee.is_blocked ? 'Bloqueado' : 'Activo'}
                                         </span>
                                     </div>
 
@@ -239,12 +239,12 @@ export default function CompanyEmployeesPage() {
                                         >
                                             {togglingId === employee.id ? (
                                                 <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                            ) : employee.isBlocked ? (
+                                            ) : employee.is_blocked ? (
                                                 <CheckCircle className="h-4 w-4 mr-1" />
                                             ) : (
                                                 <Ban className="h-4 w-4 mr-1" />
                                             )}
-                                            {employee.isBlocked ? 'Activar' : 'Bloquear'}
+                                            {employee.is_blocked ? 'Activar' : 'Bloquear'}
                                         </Button>
                                     </div>
                                 </div>
@@ -267,8 +267,8 @@ export default function CompanyEmployeesPage() {
                         <AlertDialogDescription>
                             Estás a punto de bloquear a{' '}
                             <span className="font-semibold">
-                                {employeeToBlock?.firstName} {employeeToBlock?.lastName}
-                            </span>
+                                {employeeToBlock?.first_name} {employeeToBlock?.last_name}
+                            </span> 
                             . El empleado no podrá acceder al sistema hasta que sea desbloqueado.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

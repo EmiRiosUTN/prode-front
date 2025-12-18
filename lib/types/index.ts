@@ -20,17 +20,18 @@ export interface User {
 // Employee entity
 export interface Employee {
     id: string;
-    firstName: string;
-    lastName: string;
+    first_name: string; // Backend uses snake_case
+    last_name: string; // Backend uses snake_case
     phone?: string;
     company: Company;
     area: CompanyArea;
-    userId: string;
+    user_id: string; // Backend uses snake_case
     user?: User;
-    isBlocked: boolean;
-    createdAt: string;
-    updatedAt: string;
+    is_blocked: boolean; // Backend uses snake_case
+    created_at: string; // Backend uses snake_case
+    updated_at: string; // Backend uses snake_case
 }
+
 
 
 // Company entity
@@ -151,7 +152,7 @@ export interface Prode {
     company?: Company;
     competitionId: string;
     competition?: Competition;
-    isActive: boolean;
+    is_active: boolean; // Backend uses snake_case
     startDate: string;
     endDate: string;
     _count?: {
@@ -175,6 +176,19 @@ export interface Prediction {
     createdAt: string;
     updatedAt: string;
 }
+
+// Prediction Variable entity
+export interface PredictionVariable {
+    id: string;
+    code: string;
+    name: string;
+    description?: string;
+    variable_type: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
 
 // Prode Participant entity
 export interface ProdeParticipant {
