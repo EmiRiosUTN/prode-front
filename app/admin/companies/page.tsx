@@ -80,9 +80,11 @@ export default function AdminCompaniesPage() {
                         Gestiona las empresas registradas en la plataforma
                     </p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button 
+                className="bg-slate-500 text-white hover:bg-slate-600"
+                onClick={() => setIsModalOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Nueva Empresa
+                    Nueva empresa
                 </Button>
             </div>
 
@@ -96,7 +98,7 @@ export default function AdminCompaniesPage() {
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {companies.map((company) => (
-                        <Card key={company.id} className="hover:shadow-lg transition-shadow">
+                        <Card key={company.id} className="hover:shadow-lg transition-shadow bg-white">
                             <CardHeader>
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">

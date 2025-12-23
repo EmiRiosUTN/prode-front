@@ -213,25 +213,34 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                     {isEditMode ? (
                         <>
                             <Button
-                                variant="outline"
+                                variant="ghost"
                                 onClick={handleCancel}
                                 disabled={isLoading}
+                                className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900"
                             >
                                 Cancelar
                             </Button>
-                            <Button onClick={handleSave} disabled={isLoading}>
+                            <Button
+                                onClick={handleSave}
+                                disabled={isLoading}
+                                className="bg-slate-900 text-white hover:bg-slate-800"
+                            >
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         Guardando...
                                     </>
                                 ) : (
-                                    'Guardar Cambios'
+                                    'Guardar cambios'
                                 )}
                             </Button>
                         </>
                     ) : (
-                        <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button
+                            variant="secondary"
+                            onClick={() => onOpenChange(false)}
+                            className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900"
+                        >
                             Cerrar
                         </Button>
                     )}

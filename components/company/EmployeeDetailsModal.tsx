@@ -7,7 +7,9 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
+    DialogFooter,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Mail, Phone, Building2, Calendar, User } from 'lucide-react';
 
 interface EmployeeDetailsModalProps {
@@ -92,6 +94,16 @@ export function EmployeeDetailsModal({ employee, open, onOpenChange }: EmployeeD
                         </div>
                     </div>
                 </div>
+
+                <DialogFooter>
+                    <Button
+                        variant="secondary"
+                        onClick={() => onOpenChange(false)}
+                        className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900"
+                    >
+                        Cerrar
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );

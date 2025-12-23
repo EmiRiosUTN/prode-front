@@ -43,10 +43,17 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
     const [location, setLocation] = useState('');
     const [status, setStatus] = useState<MatchStatus>('scheduled');
 
+    const getLocalDateString = (dateStr: string) => {
+        const date = new Date(dateStr);
+        const offset = date.getTimezoneOffset();
+        const localDate = new Date(date.getTime() - offset * 60000);
+        return localDate.toISOString().slice(0, 16);
+    };
+
     useEffect(() => {
         if (match) {
-            // Convert ISO date to datetime-local format
-            setMatchDate(match.match_date ? new Date(match.match_date).toISOString().slice(0, 16) : '');
+            // Convert ISO date to datetime-local format (Local Time)
+            setMatchDate(match.match_date ? getLocalDateString(match.match_date) : '');
             setStage(match.stage || '');
             setLocation(match.location || '');
             setStatus(match.status);
@@ -63,7 +70,7 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
 
         try {
             await adminMatchesApi.update(match.id, {
-                matchDate,
+                matchDate: matchDate ? new Date(matchDate).toISOString() : undefined,
                 stage,
                 location: location || undefined,
                 status,
@@ -96,12 +103,13 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
             <DialogContent className="sm:max-w-[600px] bg-white">
                 <DialogHeader>
                     <DialogTitle className="flex items-center justify-between">
-                        <span>Detalles del Partido</span>
+                        <span>Detalles del partido</span>
                         {!isEditMode && (
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setIsEditMode(true)}
+                                className="mt-2 mr-2"
                             >
                                 <Edit className="h-4 w-4 mr-2" />
                                 Editar
@@ -114,116 +122,139 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
                 </DialogHeader>
 
                 <div className="space-y-4 py-4">
-                    {/* Teams */}
-                    <div className="space-y-2">
-                        <Label className="flex items-center">
-                            <Trophy className="h-4 w-4 mr-2" />
-                            Equipos
-                        </Label>
-                        <div className="flex items-center justify-center space-x-4 text-lg font-semibold">
-                            <span>{match.team_a?.name || 'Equipo A'}</span>
-                            <span className="text-muted-foreground">vs</span>
-                            <span>{match.team_b?.name || 'Equipo B'}</span>
+                    {/* Teams Header */}
+                    <div className="flex items-center justify-between mb-6 p-4">
+                        <div className="flex flex-col items-center w-1/3">
+                            <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 mb-2 shadow-sm border border-slate-300">
+                                {match.team_a?.code}
+                            </div>
+                            <span className="text-center font-bold text-sm leading-tight text-slate-800">{match.team_a?.name}</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <span className=" text-xs font-normal uppercase mb-1">vs</span>
+                        </div>
+                        <div className="flex flex-col items-center w-1/3">
+                            <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 mb-2 shadow-sm border border-slate-300">
+                                {match.team_b?.code}
+                            </div>
+                            <span className="text-center font-bold text-sm leading-tight text-slate-800">{match.team_b?.name}</span>
                         </div>
                     </div>
 
                     {/* Competition */}
-                    <div className="space-y-2">
-                        <Label>Competición</Label>
-                        <p className="text-base">{match.competition?.name || 'N/A'}</p>
+                    <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Competición</Label>
+                        <p className="text-sm font-medium text-slate-900">{match.competition?.name || 'N/A'}</p>
                     </div>
 
-                    {/* Date */}
-                    <div className="space-y-2">
-                        <Label htmlFor="matchDate" className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Fecha y Hora
-                        </Label>
-                        {isEditMode ? (
-                            <Input
-                                id="matchDate"
-                                type="datetime-local"
-                                value={matchDate}
-                                onChange={(e) => setMatchDate(e.target.value)}
-                                disabled={isLoading}
-                            />
-                        ) : (
-                            <p className="text-base">{formatDateTime(match.match_date)}</p>
-                        )}
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Date */}
+                        <div className="space-y-1">
+                            <Label htmlFor="matchDate" className="text-xs text-muted-foreground uppercase tracking-wider font-bold flex items-center">
+                                <Calendar className="h-3 w-3 mr-1.5" />
+                                Fecha y Hora
+                            </Label>
+                            {isEditMode ? (
+                                <Input
+                                    id="matchDate"
+                                    type="datetime-local"
+                                    value={matchDate}
+                                    onChange={(e) => setMatchDate(e.target.value)}
+                                    disabled={isLoading}
+                                    className="h-9 text-sm"
+                                />
+                            ) : (
+                                <p className="text-sm font-medium text-slate-900">{formatDateTime(match.match_date)}</p>
+                            )}
+                        </div>
+
+                        {/* Location */}
+                        <div className="space-y-1">
+                            <Label htmlFor="location" className="text-xs text-muted-foreground uppercase tracking-wider font-bold flex items-center">
+                                <MapPin className="h-3 w-3 mr-1.5" />
+                                Estadio
+                            </Label>
+                            {isEditMode ? (
+                                <Input
+                                    id="location"
+                                    value={location}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    placeholder="Ej: Estadio Monumental"
+                                    disabled={isLoading}
+                                    className="h-9 text-sm"
+                                />
+                            ) : (
+                                <p className="text-sm font-medium text-slate-900">{match.location || 'No especificado'}</p>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Stage */}
-                    <div className="space-y-2">
-                        <Label htmlFor="stage">Fase/Etapa</Label>
-                        {isEditMode ? (
-                            <Input
-                                id="stage"
-                                value={stage}
-                                onChange={(e) => setStage(e.target.value)}
-                                placeholder="Ej: Fase de Grupos, Octavos, Final"
-                                disabled={isLoading}
-                            />
-                        ) : (
-                            <p className="text-base">{match.stage}</p>
-                        )}
-                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Stage */}
+                        <div className="space-y-1">
+                            <Label htmlFor="stage" className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Fase / Etapa</Label>
+                            {isEditMode ? (
+                                <Input
+                                    id="stage"
+                                    value={stage}
+                                    onChange={(e) => setStage(e.target.value)}
+                                    placeholder="Ej: Fase de Grupos"
+                                    disabled={isLoading}
+                                    className="h-9 text-sm"
+                                />
+                            ) : (
+                                <p className="text-sm font-medium text-slate-900">{match.stage}</p>
+                            )}
+                        </div>
 
-                    {/* Location */}
-                    <div className="space-y-2">
-                        <Label htmlFor="location" className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-2" />
-                            Estadio
-                        </Label>
-                        {isEditMode ? (
-                            <Input
-                                id="location"
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                placeholder="Ej: Estadio Monumental"
-                                disabled={isLoading}
-                            />
-                        ) : (
-                            <p className="text-base">{match.location || 'No especificado'}</p>
-                        )}
-                    </div>
-
-                    {/* Status */}
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Estado</Label>
-                        {isEditMode ? (
-                            <Select
-                                value={status}
-                                onValueChange={(value) => setStatus(value as MatchStatus)}
-                                disabled={isLoading}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="scheduled">Programado</SelectItem>
-                                    <SelectItem value="in_progress">En Progreso</SelectItem>
-                                    <SelectItem value="finished">Finalizado</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        ) : (
-                            <p className="text-base">
-                                {match.status === 'finished' ? 'Finalizado' :
-                                    match.status === 'in_progress' ? 'En Progreso' : 'Programado'}
-                            </p>
-                        )}
+                        {/* Status */}
+                        <div className="space-y-1">
+                            <Label htmlFor="status" className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Estado</Label>
+                            {isEditMode ? (
+                                <Select
+                                    value={status}
+                                    onValueChange={(value) => setStatus(value as MatchStatus)}
+                                    disabled={isLoading}
+                                >
+                                    <SelectTrigger className="h-9">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="scheduled">Programado</SelectItem>
+                                        <SelectItem value="in_progress">En curso</SelectItem>
+                                        <SelectItem value="finished">Finalizado</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                <div>
+                                    <span
+                                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide ${match.status === 'finished'
+                                            ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                            : match.status === 'in_progress'
+                                                ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                                                : 'bg-slate-100 text-slate-600 border border-slate-200'
+                                            }`}
+                                    >
+                                        {match.status === 'finished'
+                                            ? 'Finalizado'
+                                            : match.status === 'in_progress'
+                                                ? 'En curso'
+                                                : 'Programado'}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Result if available */}
                     {!isEditMode && match.match_result && (
-                        <div className="pt-4 border-t">
-                            <h4 className="font-semibold mb-2">Resultado</h4>
-                            <div className="bg-slate-50 rounded-md p-3">
-                                <div className="flex items-center justify-center space-x-8 text-lg font-semibold">
-                                    <span>{match.team_a?.name}</span>
-                                    <span className="text-2xl">
-                                        {match.match_result.goalsTeamA} - {match.match_result.goalsTeamB}
-                                    </span>
-                                    <span>{match.team_b?.name}</span>
+                        <div className="pt-4 border-t border-dashed mt-4">
+                            <h4 className="text-xs text-muted-foreground uppercase tracking-wider font-bold mb-3">Resultado final</h4>
+                            <div className="bg-slate-50 border border-slate-100 rounded-lg p-4">
+                                <div className="flex items-center justify-center space-x-8">
+                                    <span className="text-3xl font-black text-slate-900">{match.match_result.goals_team_a}</span>
+                                    <span className="text-slate-800 text-xl">-</span>
+                                    <span className="text-3xl font-black text-slate-900">{match.match_result.goals_team_b}</span>
                                 </div>
                             </div>
                         </div>
@@ -236,29 +267,38 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
                     )}
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="gap-2 sm:gap-0">
                     {isEditMode ? (
                         <>
                             <Button
-                                variant="outline"
+                                variant="ghost"
                                 onClick={handleCancel}
                                 disabled={isLoading}
+                                className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900"
                             >
                                 Cancelar
                             </Button>
-                            <Button onClick={handleSave} disabled={isLoading}>
+                            <Button
+                                className="bg-slate-900 text-white hover:bg-slate-800"
+                                onClick={handleSave}
+                                disabled={isLoading}
+                            >
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         Guardando...
                                     </>
                                 ) : (
-                                    'Guardar Cambios'
+                                    'Guardar cambios'
                                 )}
                             </Button>
                         </>
                     ) : (
-                        <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button
+                            variant="secondary"
+                            onClick={() => onOpenChange(false)}
+                            className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900"
+                        >
                             Cerrar
                         </Button>
                     )}

@@ -106,7 +106,8 @@ export function EditAreaModal({ area, open, onOpenChange, onSuccess }: EditAreaM
                     <DialogFooter>
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="ghost"
+                            className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900"
                             onClick={() => onOpenChange(false)}
                             disabled={isLoading}
                         >

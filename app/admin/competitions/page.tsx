@@ -71,9 +71,11 @@ export default function AdminCompetitionsPage() {
                         Gestiona las competiciones deportivas
                     </p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button 
+                className="bg-slate-500 text-white hover:bg-slate-600"
+                onClick={() => setIsModalOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Nueva Competición
+                    Nueva competición
                 </Button>
             </div>
 

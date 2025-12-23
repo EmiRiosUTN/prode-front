@@ -7,6 +7,16 @@ export type MatchStatus = 'scheduled' | 'in_progress' | 'finished' | 'cancelled'
 // Sport types
 export type SportType = 'futbol' | 'basketball' | 'rugby';
 
+// Prediction variable types
+export interface ProdeVariableConfig {
+    id: string;
+    prodeId: string;
+    predictionVariableId: string;
+    prediction_variable: PredictionVariable; // Backend returns snake_case nested relation
+    points: number;
+    is_active: boolean;
+}
+
 // User entity
 export interface User {
     id: string;
@@ -114,22 +124,23 @@ export interface Match {
     match_result?: MatchResult; // Backend uses snake_case
     created_at: string; // Backend uses snake_case
     updated_at: string; // Backend uses snake_case
+    isLocked?: boolean;
 }
 
 // Match Result entity
 export interface MatchResult {
     id: string;
-    matchId: string;
-    goalsTeamA: number;
-    goalsTeamB: number;
-    yellowCardsTeamA?: number;
-    yellowCardsTeamB?: number;
-    redCardsTeamA?: number;
-    redCardsTeamB?: number;
-    finalizedAt: string;
+    match_id: string;
+    goals_team_a: number;
+    goals_team_b: number;
+    yellow_cards_team_a?: number;
+    yellow_cards_team_b?: number;
+    red_cards_team_a?: number;
+    red_cards_team_b?: number;
+    finalized_at: string;
     scorers?: MatchScorer[];
-    createdAt: string;
-    updatedAt: string;
+    created_at: string;
+    updated_at: string;
 }
 
 // Match Scorer entity
@@ -155,6 +166,7 @@ export interface Prode {
     is_active: boolean; // Backend uses snake_case
     startDate: string;
     endDate: string;
+    prode_variable_configs?: ProdeVariableConfig[]; // Backend uses snake_case
     _count?: {
         participants: number;
     };
@@ -169,8 +181,17 @@ export interface Prediction {
     prodeParticipantId: string;
     matchId: string;
     match?: Match;
-    predictedGoalsTeamA: number;
-    predictedGoalsTeamB: number;
+    predicted_goals_team_a?: number; // Updated to match Prisma/Backend
+    predicted_goals_team_b?: number;
+    predicted_yellow_cards_team_a?: number;
+    predicted_yellow_cards_team_b?: number;
+    predicted_red_cards_team_a?: number;
+    predicted_red_cards_team_b?: number;
+
+    // Backward compatibility for existing code if any (though we should migrate)
+    // Actually MatchList was using predictedGoalsTeamA, we need to fix MatchList too.
+    // For now let's keep both or migrate MatchList. Migrating MatchList is cleaner.
+    // I will remove the old camelCase ones to force compilation errors and fix them.
     predictedScorer?: string;
     points?: number;
     createdAt: string;
@@ -218,4 +239,27 @@ export interface ApiError {
 export interface AuthResponse {
     accessToken: string;
     user: User;
+}
+
+// Ranking entities
+export interface RankingMetadata {
+    prodeId: string;
+    prodeName: string;
+    totalParticipants: number;
+    lastUpdated: string | Date;
+    isCached: boolean;
+}
+
+export interface IndividualRankingEntry {
+    employeeId: string;
+    employeeName: string;
+    areaName: string;
+    totalPoints: number;
+    predictionsCount: number;
+    position: number;
+}
+
+export interface RankingResponse {
+    metadata: RankingMetadata;
+    ranking: IndividualRankingEntry[];
 }

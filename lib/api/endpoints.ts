@@ -13,6 +13,7 @@ import {
     Prode,
     Prediction,
     PredictionVariable,
+    RankingResponse,
 } from '@/lib/types';
 import { mockApi } from '@/lib/mock/api';
 
@@ -294,6 +295,7 @@ export const companyApi = {
         description?: string;
         competitionId: string;
         participationMode: 'general' | 'by_area' | 'both';
+        companyAreaId?: string;
         variableConfigs: Array<{
             predictionVariableId: string;
             points: number;
@@ -324,27 +326,32 @@ export const prodeApi = {
         if (USE_MOCK) {
             return mockApi.getProdes();
         }
-        const response = await apiClient.get<ApiResponse<Prode[]>>('/prodes');
+        const response = await apiClient.get<ApiResponse<Prode[]>>('/employee/prodes');
+        return response.data;
+    },
+
+    getAvailable: async () => {
+        const response = await apiClient.get<ApiResponse<Prode[]>>('/employee/prodes/available');
         return response.data;
     },
 
     getById: async (id: string) => {
-        const response = await apiClient.get<ApiResponse<Prode>>(`/prodes/${id}`);
+        const response = await apiClient.get<ApiResponse<Prode>>(`/employee/prodes/${id}`);
         return response.data;
     },
 
     join: async (id: string) => {
-        const response = await apiClient.post<ApiResponse<void>>(`/prodes/${id}/join`);
+        const response = await apiClient.post<ApiResponse<void>>(`/employee/prodes/${id}/join`);
         return response.data;
     },
 
     getMatches: async (id: string) => {
-        const response = await apiClient.get<ApiResponse<Match[]>>(`/prodes/${id}/matches`);
+        const response = await apiClient.get<ApiResponse<Match[]>>(`/employee/prodes/${id}/matches`);
         return response.data;
     },
 
     getRankings: async (id: string, type: 'general' | 'my-area' | 'areas') => {
-        const response = await apiClient.get<ApiResponse<any>>(`/prodes/${id}/rankings/${type}`);
+        const response = await apiClient.get<ApiResponse<RankingResponse>>(`/prodes/${id}/rankings/${type}`);
         return response.data;
     },
 };
@@ -357,12 +364,27 @@ export const predictionApi = {
         predictedGoalsTeamB: number;
         predictedScorer?: string;
     }) => {
-        const response = await apiClient.post<ApiResponse<Prediction>>('/predictions', data);
+        const response = await apiClient.post<ApiResponse<Prediction>>('/employee/predictions', data);
+        return response.data;
+    },
+
+    upsert: async (data: {
+        prodeId: string;
+        matchId: string;
+        homeScore: number;
+        awayScore: number;
+        homeYellowCards?: number;
+        awayYellowCards?: number;
+        homeRedCards?: number;
+        awayRedCards?: number;
+        winnerId?: string;
+    }) => {
+        const response = await apiClient.post<ApiResponse<Prediction>>('/employee/predictions', data);
         return response.data;
     },
 
     getMyPredictions: async () => {
-        const response = await apiClient.get<ApiResponse<Prediction[]>>('/predictions/my');
+        const response = await apiClient.get<ApiResponse<Prediction[]>>('/employee/predictions/my');
         return response.data;
     },
 };

@@ -128,7 +128,8 @@ export function EditProdeModal({ prode, open, onOpenChange, onSuccess }: EditPro
                     <DialogFooter>
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="ghost"
+                            className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900"
                             onClick={() => onOpenChange(false)}
                             disabled={isLoading}
                         >

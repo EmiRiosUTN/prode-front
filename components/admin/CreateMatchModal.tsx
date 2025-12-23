@@ -226,13 +226,17 @@ export function CreateMatchModal({ open, onOpenChange, onSuccess }: CreateMatchM
                     <DialogFooter>
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="ghost"
+                            className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900"
                             onClick={() => onOpenChange(false)}
                             disabled={isLoading}
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isLoading || !competitionId}>
+                        <Button
+                            className="bg-slate-900 text-white hover:bg-slate-950"
+                            type="submit"
+                            disabled={isLoading || !competitionId}>
                             {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

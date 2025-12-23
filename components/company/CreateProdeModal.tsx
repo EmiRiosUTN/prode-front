@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { companyApi, predictionVariablesApi, adminCompetitionsApi } from '@/lib/api/endpoints';
-import { Competition, PredictionVariable } from '@/lib/types';
+import { Competition, PredictionVariable, CompanyArea } from '@/lib/types';
 import { getErrorMessage } from '@/lib/api/client';
 import {
     Dialog,
@@ -38,11 +38,14 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
     const [description, setDescription] = useState('');
     const [competitionId, setCompetitionId] = useState('');
     const [participationMode, setParticipationMode] = useState<'general' | 'by_area' | 'both'>('general');
+    const [companyAreaId, setCompanyAreaId] = useState<string>('');
     const [competitions, setCompetitions] = useState<Competition[]>([]);
+    const [areas, setAreas] = useState<CompanyArea[]>([]);
     const [predictionVariables, setPredictionVariables] = useState<PredictionVariable[]>([]);
     const [selectedVariables, setSelectedVariables] = useState<Map<string, number>>(new Map());
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingCompetitions, setIsLoadingCompetitions] = useState(false);
+    const [isLoadingAreas, setIsLoadingAreas] = useState(false);
     const [isLoadingVariables, setIsLoadingVariables] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +53,7 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
         if (open) {
             setStep(1); // Reset to step 1
             loadCompetitions();
+            loadAreas();
             loadPredictionVariables();
         }
     }, [open]);
@@ -66,7 +70,20 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
         }
     };
 
+    const loadAreas = async () => {
+        try {
+            setIsLoadingAreas(true);
+            const response = await companyApi.getAreas();
+            setAreas(response.data);
+        } catch (err) {
+            console.error('Error loading areas:', err);
+        } finally {
+            setIsLoadingAreas(false);
+        }
+    };
+
     const loadPredictionVariables = async () => {
+        // ... existing loadPredictionVariables code ...
         try {
             setIsLoadingVariables(true);
             const response = await predictionVariablesApi.getAll();
@@ -90,7 +107,7 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
             setIsLoadingVariables(false);
         }
     };
-
+    // ... existing handlers ...
     const handleVariableToggle = (variableId: string, checked: boolean) => {
         const newSelected = new Map(selectedVariables);
         if (checked) {
@@ -155,6 +172,7 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                 description,
                 competitionId,
                 participationMode,
+                companyAreaId: participationMode === 'by_area' && companyAreaId ? companyAreaId : undefined,
                 variableConfigs,
             });
 
@@ -163,10 +181,11 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
             setDescription('');
             setCompetitionId('');
             setParticipationMode('general');
+            setCompanyAreaId('');
             setSelectedVariables(new Map());
             setStep(1);
 
-            // Close modal and trigger refresh
+            // Close modal and refresh
             onOpenChange(false);
             onSuccess();
         } catch (err) {
@@ -266,6 +285,32 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                                         Define cómo se organizarán los rankings
                                     </p>
                                 </div>
+
+                                {participationMode === 'by_area' && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="companyArea">Área Específica (Opcional)</Label>
+                                        <Select
+                                            value={companyAreaId}
+                                            onValueChange={setCompanyAreaId}
+                                            disabled={isLoading || isLoadingAreas}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecciona un área para prode privado" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="none">Todas las áreas</SelectItem>
+                                                {areas.map((area) => (
+                                                    <SelectItem key={area.id} value={area.id}>
+                                                        {area.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <p className="text-xs text-muted-foreground">
+                                            Si seleccionas un área, solo los empleados de esa área podrán participar (Prode Privado).
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="space-y-3">
@@ -335,6 +380,7 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                             <Button
                                 type="button"
                                 variant="ghost"
+                                className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900"
                                 onClick={() => onOpenChange(false)}
                                 disabled={isLoading}
                             >

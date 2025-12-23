@@ -10,6 +10,7 @@ import { Plus, Loader2, Calendar, MapPin } from 'lucide-react';
 import { formatDateTime } from '@/lib/utils';
 import { CreateMatchModal } from '@/components/admin/CreateMatchModal';
 import { MatchDetailsModal } from '@/components/admin/MatchDetailsModal';
+import { EditMatchResultModal } from '@/components/admin/EditMatchResultModal';
 
 export default function AdminMatchesPage() {
     const [matches, setMatches] = useState<Match[]>([]);
@@ -19,6 +20,7 @@ export default function AdminMatchesPage() {
     const [error, setError] = useState<string | null>(null);
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+    const [resultModalOpen, setResultModalOpen] = useState(false);
     const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
     useEffect(() => {
@@ -77,9 +79,11 @@ export default function AdminMatchesPage() {
                         Gestiona los partidos de las competiciones
                     </p>
                 </div>
-                <Button onClick={() => setCreateModalOpen(true)}>
+                <Button
+                    className="bg-slate-500 text-white hover:bg-slate-600"
+                    onClick={() => setCreateModalOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Nuevo Partido
+                    Nuevo partido
                 </Button>
             </div>
 
@@ -111,84 +115,109 @@ export default function AdminMatchesPage() {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {matches.map((match) => (
-                        <Card key={match.id} className="hover:shadow-md transition-shadow">
-                            <CardHeader>
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <CardTitle className="text-lg">
-                                            {match.team_a?.name || 'Equipo A'} vs {match.team_b?.name || 'Equipo B'}
-                                        </CardTitle>
-                                        <CardDescription className="mt-1">
-                                            {match.competition?.name} - {match.stage}
-                                        </CardDescription>
+                        <Card key={match.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 border-slate-200 flex flex-col">
+                            {/* Card Header: Competition & Status */}
+                            <div className="flex justify-between items-center bg-slate-50/80 px-4 py-3 border-b">
+                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate max-w-[60%]">
+                                    {match.competition?.name}
+                                </span>
+                                <span
+                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${match.status === 'finished'
+                                        ? 'bg-green-100 text-green-700 border border-green-200'
+                                        : match.status === 'in_progress'
+                                            ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                                            : 'bg-slate-100 text-slate-600 border border-slate-200'
+                                        }`}
+                                >
+                                    {match.status === 'finished'
+                                        ? 'Finalizado'
+                                        : match.status === 'in_progress'
+                                            ? 'En curso'
+                                            : 'Programado'}
+                                </span>
+                            </div>
+
+                            <CardContent className="p-0 flex-1 flex flex-col justify-center min-h-[160px]">
+                                <div className="p-6 flex flex-col items-center w-full">
+                                    <div className="flex items-start justify-between w-full mb-6">
+                                        {/* Team A */}
+                                        <div className="flex flex-col items-center w-1/3 group">
+                                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-700 mb-3 shadow-sm border border-slate-300 group-hover:scale-105 transition-transform">
+                                                {match.team_a?.code}
+                                            </div>
+                                            <span className="text-center font-bold text-sm leading-tight text-slate-800 line-clamp-2">{match.team_a?.name}</span>
+                                        </div>
+
+                                        {/* Score / VS Center */}
+                                        <div className="w-1/3 flex flex-col items-center justify-center pt-2">
+                                            {match.match_result ? (
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-3xl font-black text-slate-900">{match.match_result.goals_team_a}</span>
+                                                    <span className="text-slate-300 text-xl">-</span>
+                                                    <span className="text-3xl font-black text-slate-900">{match.match_result.goals_team_b}</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-2xl font-black text-slate-200">VS</span>
+                                                </div>
+                                            )}
+                                            <div className="mt-2 text-[10px] font-medium text-muted-foreground bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
+                                                {match.stage}
+                                            </div>
+                                        </div>
+
+                                        {/* Team B */}
+                                        <div className="flex flex-col items-center w-1/3 group">
+                                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-700 mb-3 shadow-sm border border-slate-300 group-hover:scale-105 transition-transform">
+                                                {match.team_b?.code}
+                                            </div>
+                                            <span className="text-center font-bold text-sm leading-tight text-slate-800 line-clamp-2">{match.team_b?.name}</span>
+                                        </div>
                                     </div>
-                                    <span
-                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${match.status === 'finished'
-                                            ? 'bg-green-100 text-green-800'
-                                            : match.status === 'in_progress'
-                                                ? 'bg-blue-100 text-blue-800'
-                                                : 'bg-slate-100 text-slate-800'
-                                            }`}
-                                    >
-                                        {match.status === 'finished'
-                                            ? 'Finalizado'
-                                            : match.status === 'in_progress'
-                                                ? 'En Curso'
-                                                : 'Programado'}
-                                    </span>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-3">
-                                    {/* Match Info */}
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
-                                        <div className="flex items-center text-muted-foreground">
-                                            <Calendar className="h-4 w-4 mr-2" />
-                                            <span>{formatDateTime(match.match_date)}</span>
+
+                                    {/* Metadata */}
+                                    <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground w-full pt-4 border-t border-dashed">
+                                        <div className="flex items-center bg-slate-50 px-2 py-1 rounded">
+                                            <Calendar className="w-3 h-3 mr-1.5 text-slate-400" />
+                                            {formatDateTime(match.match_date)}
                                         </div>
                                         {match.location && (
-                                            <div className="flex items-center text-muted-foreground">
-                                                <MapPin className="h-4 w-4 mr-2" />
-                                                <span>{match.location}</span>
+                                            <div className="flex items-center bg-slate-50 px-2 py-1 rounded">
+                                                <MapPin className="w-3 h-3 mr-1.5 text-slate-400" />
+                                                <span className="truncate max-w-[100px]">{match.location}</span>
                                             </div>
-                                        )}
-                                    </div>
-
-                                    {/* Result if available */}
-                                    {match.match_result && (
-                                        <div className="bg-slate-50 rounded-md p-3">
-                                            <div className="flex items-center justify-center space-x-8 text-lg font-semibold">
-                                                <span>{match.team_a?.name}</span>
-                                                <span className="text-2xl">
-                                                    {match.match_result.goalsTeamA} - {match.match_result.goalsTeamB}
-                                                </span>
-                                                <span>{match.team_b?.name}</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Actions */}
-                                    <div className="pt-2 flex space-x-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => {
-                                                setSelectedMatch(match);
-                                                setDetailsModalOpen(true);
-                                            }}
-                                        >
-                                            Ver Detalles
-                                        </Button>
-                                        {match.status !== 'finished' && (
-                                            <Button variant="outline" size="sm">
-                                                Cargar Resultado
-                                            </Button>
                                         )}
                                     </div>
                                 </div>
                             </CardContent>
+
+                            {/* Actions Footer */}
+                            <div className="p-3 bg-slate-50 flex gap-3 border-t">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="flex-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 font-medium"
+                                    onClick={() => {
+                                        setSelectedMatch(match);
+                                        setDetailsModalOpen(true);
+                                    }}
+                                >
+                                    Ver detalles
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 bg-slate-900 text-white hover:bg-slate-800 hover:text-white border-transparent"
+                                    onClick={() => {
+                                        setSelectedMatch(match);
+                                        setResultModalOpen(true);
+                                    }}
+                                >
+                                    {match.match_result ? 'Editar resultado' : 'Cargar resultado'}
+                                </Button>
+                            </div>
                         </Card>
                     ))}
                 </div>
@@ -206,6 +235,14 @@ export default function AdminMatchesPage() {
                 match={selectedMatch}
                 open={detailsModalOpen}
                 onOpenChange={setDetailsModalOpen}
+                onSuccess={loadMatches}
+            />
+
+            {/* Edit Result Modal */}
+            <EditMatchResultModal
+                match={selectedMatch}
+                open={resultModalOpen}
+                onOpenChange={setResultModalOpen}
                 onSuccess={loadMatches}
             />
         </div>
