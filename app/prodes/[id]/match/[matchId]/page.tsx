@@ -70,28 +70,104 @@ export default function MatchPredictionPage() {
     if (!prode || !match) return null;
 
     return (
-        <div className="container ">
-            <Button
-                variant="ghost"
-                className="mb-6 pl-0 hover:pl-2 transition-all"
-                onClick={() => router.push(`/prodes/${prodeId}`)}
-            >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver al prode
-            </Button>
+        <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+            <div className="container mx-auto py-8">
+                <Button
+                    variant="ghost"
+                    className="mb-6"
+                    onClick={() => router.push(`/prodes/${prodeId}`)}
+                >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Volver al prode
+                </Button>
 
-            <div className="mb-8 text-center">
-                <Badge variant="outline" className="mb-2">{match.stage}</Badge>
-                <p className="text-md font-medium">{formatDate(match.match_date)}</p>
-                {match.location && <p className="text-sm text-muted-foreground">{match.location}</p>}
+                <div className="bg-card border rounded-lg shadow-lg overflow-hidden mb-6">
+                    <div className="bg-primary/10 border-b px-6 py-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-muted-foreground">Prode</p>
+                                <h1 className="text-xl font-bold">{prode.name}</h1>
+                            </div>
+                            <Badge variant="outline" className="text-sm">
+                                {match.stage || 'Fase de grupos'}
+                            </Badge>
+                        </div>
+                    </div>
+
+                    <div className="px-6 py-8">
+                        <div className="flex items-center justify-center gap-8 mb-8">
+                            <div className="flex-1 text-right">
+                                <div className="inline-block">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-full flex items-center justify-center mb-2 mx-auto border border-primary/20 overflow-hidden">
+                                        {match.team_a?.flag_url ? (
+                                            <img
+                                                src={match.team_a.flag_url}
+                                                alt={match.team_a.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="text-xl font-semibold text-primary/70">
+                                                {match.team_a?.name?.substring(0, 3).toUpperCase() || 'A'}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h2 className="text-lg font-semibold text-foreground/90">{match.team_a?.name || 'Equipo A'}</h2>
+                                </div>
+                            </div>
+
+                            <div className="flex-shrink-0">
+                                <div className="w-12 h-12 bg-muted/50 rounded-full flex items-center justify-center border border-border">
+                                    <span className="text-sm font-medium text-muted-foreground">VS</span>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 text-left">
+                                <div className="inline-block">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-full flex items-center justify-center mb-2 mx-auto border border-primary/20 overflow-hidden">
+                                        {match.team_b?.flag_url ? (
+                                            <img
+                                                src={match.team_b.flag_url}
+                                                alt={match.team_b.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="text-xl font-semibold text-primary/70">
+                                                {match.team_b?.name?.substring(0, 3).toUpperCase() || 'B'}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h2 className="text-lg font-semibold text-foreground/90">{match.team_b?.name || 'Equipo B'}</h2>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-2 text-center border-t pt-6">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span className="font-medium">{formatDate(match.match_date)}</span>
+                            </div>
+                            {match.location && (
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <span className="text-sm">{match.location}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <PredictionForm
+                    prodeId={prodeId}
+                    match={match}
+                    variableConfigs={prode.prode_variable_configs || []}
+                    onSuccess={() => router.push(`/prodes/${prodeId}`)}
+                />
             </div>
-
-            <PredictionForm
-                prodeId={prodeId}
-                match={match}
-                variableConfigs={prode.prode_variable_configs || []}
-                onSuccess={() => router.push(`/prodes/${prodeId}`)}
-            />
         </div>
     );
 }

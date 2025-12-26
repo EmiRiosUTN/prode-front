@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Loader2, Edit, Trophy, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
@@ -36,6 +37,7 @@ export function CompetitionDetailsModal({ competition, open, onOpenChange, onSuc
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [sportType, setSportType] = useState('futbol');
+    const [isActive, setIsActive] = useState(true);
 
     useEffect(() => {
         if (competition) {
@@ -45,6 +47,7 @@ export function CompetitionDetailsModal({ competition, open, onOpenChange, onSuc
             setStartDate(competition.start_date ? new Date(competition.start_date).toISOString().slice(0, 16) : '');
             setEndDate(competition.end_date ? new Date(competition.end_date).toISOString().slice(0, 16) : '');
             setSportType(competition.sport_type || 'futbol');
+            setIsActive(competition.is_active ?? true);
             setIsEditMode(false);
             setError(null);
         }
@@ -62,6 +65,7 @@ export function CompetitionDetailsModal({ competition, open, onOpenChange, onSuc
                 startDate,
                 endDate,
                 sportType,
+                isActive,
             });
 
             setIsEditMode(false);
@@ -80,6 +84,7 @@ export function CompetitionDetailsModal({ competition, open, onOpenChange, onSuc
             setStartDate(competition.start_date ? new Date(competition.start_date).toISOString().slice(0, 16) : '');
             setEndDate(competition.end_date ? new Date(competition.end_date).toISOString().slice(0, 16) : '');
             setSportType(competition.sport_type || 'futbol');
+            setIsActive(competition.is_active ?? true);
         }
         setIsEditMode(false);
         setError(null);
@@ -201,6 +206,31 @@ export function CompetitionDetailsModal({ competition, open, onOpenChange, onSuc
                         )}
                     </div>
 
+                    {/* Active Status */}
+                    {isEditMode && (
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="isActive" className="text-base">
+                                    Estado de la Competición
+                                </Label>
+                                <div className="flex items-center space-x-2">
+                                    <Switch
+                                        id="isActive"
+                                        checked={isActive}
+                                        onCheckedChange={setIsActive}
+                                        disabled={isLoading}
+                                    />
+                                    <span className={`text-sm font-medium ${isActive ? 'text-green-600' : 'text-gray-500'}`}>
+                                        {isActive ? 'Activa' : 'Inactiva'}
+                                    </span>
+                                </div>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Las competiciones inactivas no estarán disponibles para crear nuevos prodes.
+                            </p>
+                        </div>
+                    )}
+
                     {/* Stats */}
                     {!isEditMode && (
                         <div className="pt-4 border-t">
@@ -216,8 +246,8 @@ export function CompetitionDetailsModal({ competition, open, onOpenChange, onSuc
                                 </div>
                                 <div>
                                     <span className="text-muted-foreground">Estado:</span>{' '}
-                                    <span className={`font-medium ${competition.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                                        {competition.isActive ? 'Activa' : 'Inactiva'}
+                                    <span className={`font-medium ${competition.is_active ? 'text-green-600' : 'text-red-600'}`}>
+                                        {competition.is_active ? 'Activa' : 'Inactiva'}
                                     </span>
                                 </div>
                             </div>

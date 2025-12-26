@@ -37,7 +37,7 @@ export default function ProdesLayout({ children }: { children: ReactNode }) {
                             </div>
                             <div className="flex items-center space-x-4">
                                 <div className="text-right">
-                                    <p className="text-sm font-medium">{user?.employee?.firstName} {user?.employee?.lastName}</p>
+                                    <p className="text-sm font-medium">{user?.employee?.first_name} {user?.employee?.last_name}</p>
                                     <p className="text-xs text-slate-500">{user?.employee?.company?.name}</p>
                                 </div>
                                 <Button variant="outline" size="sm" onClick={handleLogout}>

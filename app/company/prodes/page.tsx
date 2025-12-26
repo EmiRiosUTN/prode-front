@@ -137,8 +137,14 @@ export default function CompanyProdesPage() {
 
                                     <div className="flex items-center text-sm text-muted-foreground">
                                         <Calendar className="h-4 w-4 mr-2" />
-                                        {new Date(prode.startDate).toLocaleDateString('es-AR')} -{' '}
-                                        {new Date(prode.endDate).toLocaleDateString('es-AR')}
+                                        {prode.competition ? (
+                                            <>
+                                                {new Date(prode.competition.start_date).toLocaleDateString('es-AR')} -{' '}
+                                                {new Date(prode.competition.end_date).toLocaleDateString('es-AR')}
+                                            </>
+                                        ) : (
+                                            <span className="text-muted-foreground italic">Sin fechas</span>
+                                        )}
                                     </div>
 
                                     <div className="flex items-center text-sm text-muted-foreground">

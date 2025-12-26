@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
 
 interface EditAreaModalProps {
@@ -28,6 +29,7 @@ interface EditAreaModalProps {
 export function EditAreaModal({ area, open, onOpenChange, onSuccess }: EditAreaModalProps) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
+    const [isActive, setIsActive] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -35,6 +37,8 @@ export function EditAreaModal({ area, open, onOpenChange, onSuccess }: EditAreaM
         if (area) {
             setName(area.name);
             setDescription(area.description || '');
+            // Prevent uncontrolled component warning by ensuring default
+            setIsActive(area.is_active ?? true);
         }
     }, [area]);
 
@@ -46,7 +50,7 @@ export function EditAreaModal({ area, open, onOpenChange, onSuccess }: EditAreaM
         setIsLoading(true);
 
         try {
-            await companyApi.updateArea(area.id, { name, description });
+            await companyApi.updateArea(area.id, { name, description, isActive });
 
             // Close modal and trigger refresh
             onOpenChange(false);
@@ -93,6 +97,21 @@ export function EditAreaModal({ area, open, onOpenChange, onSuccess }: EditAreaM
                                 onChange={(e) => setDescription(e.target.value)}
                                 disabled={isLoading}
                                 rows={3}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="edit-active">Estado del Área</Label>
+                                <div className="text-xs text-muted-foreground">
+                                    {isActive ? 'El área está visible y activa' : 'El área está oculta e inactiva'}
+                                </div>
+                            </div>
+                            <Switch
+                                id="edit-active"
+                                checked={isActive}
+                                onCheckedChange={setIsActive}
+                                disabled={isLoading}
                             />
                         </div>
 

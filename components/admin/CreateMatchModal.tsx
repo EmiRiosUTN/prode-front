@@ -34,6 +34,8 @@ export function CreateMatchModal({ open, onOpenChange, onSuccess }: CreateMatchM
     const [competitionId, setCompetitionId] = useState('');
     const [teamA, setTeamA] = useState('');
     const [teamB, setTeamB] = useState('');
+    const [teamAFlagUrl, setTeamAFlagUrl] = useState('');
+    const [teamBFlagUrl, setTeamBFlagUrl] = useState('');
     const [matchDate, setMatchDate] = useState('');
     const [stage, setStage] = useState('');
     const [location, setLocation] = useState('');
@@ -72,6 +74,8 @@ export function CreateMatchModal({ open, onOpenChange, onSuccess }: CreateMatchM
                 competitionId,
                 teamA,
                 teamB,
+                teamAFlagUrl: teamAFlagUrl || undefined,
+                teamBFlagUrl: teamBFlagUrl || undefined,
                 matchDate,
                 stage,
                 location: location || undefined,
@@ -82,6 +86,8 @@ export function CreateMatchModal({ open, onOpenChange, onSuccess }: CreateMatchM
             setCompetitionId('');
             setTeamA('');
             setTeamB('');
+            setTeamAFlagUrl('');
+            setTeamBFlagUrl('');
             setMatchDate('');
             setStage('');
             setLocation('');
@@ -139,7 +145,7 @@ export function CreateMatchModal({ open, onOpenChange, onSuccess }: CreateMatchM
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="teamA">Equipo Local *</Label>
+                                <Label htmlFor="teamA">Equipo local *</Label>
                                 <Input
                                     id="teamA"
                                     placeholder="Ej: Argentina"
@@ -151,7 +157,7 @@ export function CreateMatchModal({ open, onOpenChange, onSuccess }: CreateMatchM
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="teamB">Equipo Visitante *</Label>
+                                <Label htmlFor="teamB">Equipo visitante *</Label>
                                 <Input
                                     id="teamB"
                                     placeholder="Ej: Brasil"
@@ -163,8 +169,32 @@ export function CreateMatchModal({ open, onOpenChange, onSuccess }: CreateMatchM
                             </div>
                         </div>
 
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="teamAFlagUrl">URL Bandera local (opcional)</Label>
+                                <Input
+                                    id="teamAFlagUrl"
+                                    placeholder="https://..."
+                                    value={teamAFlagUrl}
+                                    onChange={(e) => setTeamAFlagUrl(e.target.value)}
+                                    disabled={isLoading}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="teamBFlagUrl">URL Bandera visitante (opcional)</Label>
+                                <Input
+                                    id="teamBFlagUrl"
+                                    placeholder="https://..."
+                                    value={teamBFlagUrl}
+                                    onChange={(e) => setTeamBFlagUrl(e.target.value)}
+                                    disabled={isLoading}
+                                />
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
-                            <Label htmlFor="matchDate">Fecha y Hora *</Label>
+                            <Label htmlFor="matchDate">Fecha y hora *</Label>
                             <Input
                                 id="matchDate"
                                 type="datetime-local"
@@ -210,7 +240,7 @@ export function CreateMatchModal({ open, onOpenChange, onSuccess }: CreateMatchM
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="scheduled">Programado</SelectItem>
-                                    <SelectItem value="in_progress">En Progreso</SelectItem>
+                                    <SelectItem value="in_progress">En progreso</SelectItem>
                                     <SelectItem value="finished">Finalizado</SelectItem>
                                 </SelectContent>
                             </Select>
@@ -243,7 +273,7 @@ export function CreateMatchModal({ open, onOpenChange, onSuccess }: CreateMatchM
                                     Creando...
                                 </>
                             ) : (
-                                'Crear Partido'
+                                'Crear partido'
                             )}
                         </Button>
                     </DialogFooter>

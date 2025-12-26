@@ -72,7 +72,7 @@ export interface CompanyArea {
     name: string;
     description?: string;
     companyId: string;
-    isActive: boolean;
+    is_active: boolean;
     _count?: {
         employees: number;
     };
@@ -89,7 +89,7 @@ export interface Competition {
     start_date: string; // Backend uses snake_case
     end_date: string;   // Backend uses snake_case
     sport_type?: string; // Backend uses snake_case
-    isActive: boolean;
+    is_active: boolean; // Backend uses snake_case
     _count?: {
         matches: number;
         prodes: number;
@@ -103,7 +103,7 @@ export interface Team {
     id: string;
     name: string;
     code: string;
-    flagUrl?: string;
+    flag_url?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -154,6 +154,18 @@ export interface MatchScorer {
     createdAt: string;
 }
 
+// Prode Ranking Config
+export interface ProdeRankingConfig {
+    id: string;
+    prode_id: string;
+    show_individual_general: boolean;
+    show_individual_by_area: boolean;
+    show_area_ranking: boolean;
+    area_ranking_calculation: 'average' | 'sum';
+    created_at: string;
+    updated_at: string;
+}
+
 // Prode entity
 export interface Prode {
     id: string;
@@ -164,9 +176,9 @@ export interface Prode {
     competitionId: string;
     competition?: Competition;
     is_active: boolean; // Backend uses snake_case
-    startDate: string;
-    endDate: string;
+
     prode_variable_configs?: ProdeVariableConfig[]; // Backend uses snake_case
+    prode_ranking_config?: ProdeRankingConfig; // Backend uses snake_case
     _count?: {
         participants: number;
     };
@@ -259,7 +271,20 @@ export interface IndividualRankingEntry {
     position: number;
 }
 
+export interface AreaRankingEntry {
+    areaId: string;
+    areaName: string;
+    totalPoints: number;
+    participantsCount: number;
+    topEmployees: Array<{
+        employeeId: string;
+        employeeName: string;
+        totalPoints: number;
+    }>;
+    position: number;
+}
+
 export interface RankingResponse {
     metadata: RankingMetadata;
-    ranking: IndividualRankingEntry[];
+    ranking: IndividualRankingEntry[] | AreaRankingEntry[];
 }

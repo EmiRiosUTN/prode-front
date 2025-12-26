@@ -91,7 +91,7 @@ export const mockApi = {
         await delay();
         let matches = mockMatches;
         if (competitionId) {
-            matches = matches.filter((m) => m.competitionId === competitionId);
+            matches = matches.filter((m) => m.competition_id === competitionId);
         }
         return {
             success: true,

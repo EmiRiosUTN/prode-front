@@ -144,8 +144,16 @@ export default function AdminMatchesPage() {
                                     <div className="flex items-start justify-between w-full mb-6">
                                         {/* Team A */}
                                         <div className="flex flex-col items-center w-1/3 group">
-                                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-700 mb-3 shadow-sm border border-slate-300 group-hover:scale-105 transition-transform">
-                                                {match.team_a?.code}
+                                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-700 mb-3 shadow-sm border border-slate-300 group-hover:scale-105 transition-transform overflow-hidden">
+                                                {match.team_a?.flag_url ? (
+                                                    <img
+                                                        src={match.team_a.flag_url}
+                                                        alt={match.team_a.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    match.team_a?.code
+                                                )}
                                             </div>
                                             <span className="text-center font-bold text-sm leading-tight text-slate-800 line-clamp-2">{match.team_a?.name}</span>
                                         </div>
@@ -170,8 +178,16 @@ export default function AdminMatchesPage() {
 
                                         {/* Team B */}
                                         <div className="flex flex-col items-center w-1/3 group">
-                                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-700 mb-3 shadow-sm border border-slate-300 group-hover:scale-105 transition-transform">
-                                                {match.team_b?.code}
+                                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-700 mb-3 shadow-sm border border-slate-300 group-hover:scale-105 transition-transform overflow-hidden">
+                                                {match.team_b?.flag_url ? (
+                                                    <img
+                                                        src={match.team_b.flag_url}
+                                                        alt={match.team_b.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    match.team_b?.code
+                                                )}
                                             </div>
                                             <span className="text-center font-bold text-sm leading-tight text-slate-800 line-clamp-2">{match.team_b?.name}</span>
                                         </div>

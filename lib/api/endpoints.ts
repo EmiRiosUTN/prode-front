@@ -169,6 +169,8 @@ export interface CreateMatchRequest {
     competitionId: string;
     teamA: string;
     teamB: string;
+    teamAFlagUrl?: string;
+    teamBFlagUrl?: string;
     matchDate: string;
     stage: string;
     location?: string;
@@ -180,6 +182,8 @@ export interface UpdateMatchRequest {
     stage?: string;
     location?: string;
     status?: string;
+    teamAFlagUrl?: string;
+    teamBFlagUrl?: string;
 }
 
 export interface LoadMatchResultRequest {
@@ -239,6 +243,11 @@ export const adminMatchesApi = {
 };
 
 export const companyApi = {
+    getPublicConfig: async () => {
+        const response = await apiClient.get<ApiResponse<Company & { areas: CompanyArea[] }>>('/company/public/config');
+        return response.data;
+    },
+
     getConfig: async () => {
         const response = await apiClient.get<ApiResponse<Company>>('/company/config');
         return response.data;
@@ -259,7 +268,7 @@ export const companyApi = {
         return response.data;
     },
 
-    updateArea: async (id: string, data: { name?: string; description?: string }) => {
+    updateArea: async (id: string, data: { name?: string; description?: string; isActive?: boolean }) => {
         const response = await apiClient.put<ApiResponse<CompanyArea>>(`/company/areas/${id}`, data);
         return response.data;
     },
@@ -296,6 +305,8 @@ export const companyApi = {
         competitionId: string;
         participationMode: 'general' | 'by_area' | 'both';
         companyAreaId?: string;
+        showAreaRanking?: boolean;
+        areaRankingCalculation?: 'sum' | 'average';
         variableConfigs: Array<{
             predictionVariableId: string;
             points: number;
@@ -385,6 +396,24 @@ export const predictionApi = {
 
     getMyPredictions: async () => {
         const response = await apiClient.get<ApiResponse<Prediction[]>>('/employee/predictions/my');
+        return response.data;
+    },
+
+    getAvailableCopies: async (matchId: string, prodeId: string) => {
+        const response = await apiClient.get<ApiResponse<{
+            availablePredictions: Array<{
+                prodeId: string;
+                prodeName: string;
+                prediction: {
+                    predicted_goals_team_a: number;
+                    predicted_goals_team_b: number;
+                    predicted_yellow_cards_team_a?: number | null;
+                    predicted_yellow_cards_team_b?: number | null;
+                    predicted_red_cards_team_a?: number | null;
+                    predicted_red_cards_team_b?: number | null;
+                };
+            }>;
+        }>>(`/employee/predictions/match/${matchId}/available-copies?prodeId=${prodeId}`);
         return response.data;
     },
 };

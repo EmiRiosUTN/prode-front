@@ -38,11 +38,17 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
     const [description, setDescription] = useState('');
     const [competitionId, setCompetitionId] = useState('');
     const [participationMode, setParticipationMode] = useState<'general' | 'by_area' | 'both'>('general');
+
+    // New states for area ranking
     const [companyAreaId, setCompanyAreaId] = useState<string>('');
+    const [enableAreaRanking, setEnableAreaRanking] = useState(false);
+    const [areaRankingCalculation, setAreaRankingCalculation] = useState<'sum' | 'average'>('average');
+
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [areas, setAreas] = useState<CompanyArea[]>([]);
     const [predictionVariables, setPredictionVariables] = useState<PredictionVariable[]>([]);
     const [selectedVariables, setSelectedVariables] = useState<Map<string, number>>(new Map());
+
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingCompetitions, setIsLoadingCompetitions] = useState(false);
     const [isLoadingAreas, setIsLoadingAreas] = useState(false);
@@ -83,7 +89,6 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
     };
 
     const loadPredictionVariables = async () => {
-        // ... existing loadPredictionVariables code ...
         try {
             setIsLoadingVariables(true);
             const response = await predictionVariablesApi.getAll();
@@ -107,7 +112,7 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
             setIsLoadingVariables(false);
         }
     };
-    // ... existing handlers ...
+
     const handleVariableToggle = (variableId: string, checked: boolean) => {
         const newSelected = new Map(selectedVariables);
         if (checked) {
@@ -173,6 +178,8 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                 competitionId,
                 participationMode,
                 companyAreaId: participationMode === 'by_area' && companyAreaId ? companyAreaId : undefined,
+                showAreaRanking: enableAreaRanking,
+                areaRankingCalculation: enableAreaRanking ? areaRankingCalculation : undefined,
                 variableConfigs,
             });
 
@@ -182,6 +189,8 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
             setCompetitionId('');
             setParticipationMode('general');
             setCompanyAreaId('');
+            setEnableAreaRanking(false);
+            setAreaRankingCalculation('average');
             setSelectedVariables(new Map());
             setStep(1);
 
@@ -311,10 +320,58 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                                         </p>
                                     </div>
                                 )}
+
+                                {(!companyAreaId || companyAreaId === 'none') && (
+                                    <div className="space-y-4 pt-2 border-t">
+                                        <div className="flex items-start space-x-2">
+                                            <Checkbox
+                                                id="areaRanking"
+                                                checked={enableAreaRanking}
+                                                onCheckedChange={(checked) => setEnableAreaRanking(checked as boolean)}
+                                                disabled={isLoading}
+                                            />
+                                            <div className="grid gap-1.5 leading-none">
+                                                <Label
+                                                    htmlFor="areaRanking"
+                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                                >
+                                                    Habilitar Competencia entre Áreas
+                                                </Label>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Genera un ranking adicional comparando el desempeño de cada área.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {enableAreaRanking && (
+                                            <div className="space-y-2 pl-6">
+                                                <Label htmlFor="calculationMode">Método de Cálculo</Label>
+                                                <Select
+                                                    value={areaRankingCalculation}
+                                                    onValueChange={(value: 'sum' | 'average') => setAreaRankingCalculation(value)}
+                                                    disabled={isLoading}
+                                                >
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="average">Promedio (Recomendado)</SelectItem>
+                                                        <SelectItem value="sum">Suma total</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Promedio: Suma de puntos / Cantidad de empleados (más justo para áreas chicas).
+                                                    <br />
+                                                    Suma total: Suma directa de puntos (favorece áreas con más empleados).
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                <Label>Variables de Predicción *</Label>
+                                <Label>Variables de predicción *</Label>
                                 {isLoadingVariables ? (
                                     <div className="flex items-center justify-center py-4">
                                         <Loader2 className="h-4 w-4 animate-spin" />

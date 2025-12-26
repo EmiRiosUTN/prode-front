@@ -42,6 +42,8 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
     const [stage, setStage] = useState('');
     const [location, setLocation] = useState('');
     const [status, setStatus] = useState<MatchStatus>('scheduled');
+    const [teamAFlagUrl, setTeamAFlagUrl] = useState('');
+    const [teamBFlagUrl, setTeamBFlagUrl] = useState('');
 
     const getLocalDateString = (dateStr: string) => {
         const date = new Date(dateStr);
@@ -57,6 +59,8 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
             setStage(match.stage || '');
             setLocation(match.location || '');
             setStatus(match.status);
+            setTeamAFlagUrl(match.team_a?.flag_url || '');
+            setTeamBFlagUrl(match.team_b?.flag_url || '');
             setIsEditMode(false);
             setError(null);
         }
@@ -74,6 +78,8 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
                 stage,
                 location: location || undefined,
                 status,
+                teamAFlagUrl: teamAFlagUrl || undefined,
+                teamBFlagUrl: teamBFlagUrl || undefined,
             });
 
             setIsEditMode(false);
@@ -91,6 +97,8 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
             setStage(match.stage || '');
             setLocation(match.location || '');
             setStatus(match.status);
+            setTeamAFlagUrl(match.team_a?.flag_url || '');
+            setTeamBFlagUrl(match.team_b?.flag_url || '');
         }
         setIsEditMode(false);
         setError(null);
@@ -125,8 +133,16 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
                     {/* Teams Header */}
                     <div className="flex items-center justify-between mb-6 p-4">
                         <div className="flex flex-col items-center w-1/3">
-                            <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 mb-2 shadow-sm border border-slate-300">
-                                {match.team_a?.code}
+                            <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 mb-2 shadow-sm border border-slate-300 overflow-hidden">
+                                {match.team_a?.flag_url ? (
+                                    <img
+                                        src={match.team_a.flag_url}
+                                        alt={match.team_a.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    match.team_a?.code
+                                )}
                             </div>
                             <span className="text-center font-bold text-sm leading-tight text-slate-800">{match.team_a?.name}</span>
                         </div>
@@ -134,8 +150,16 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
                             <span className=" text-xs font-normal uppercase mb-1">vs</span>
                         </div>
                         <div className="flex flex-col items-center w-1/3">
-                            <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 mb-2 shadow-sm border border-slate-300">
-                                {match.team_b?.code}
+                            <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 mb-2 shadow-sm border border-slate-300 overflow-hidden">
+                                {match.team_b?.flag_url ? (
+                                    <img
+                                        src={match.team_b.flag_url}
+                                        alt={match.team_b.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    match.team_b?.code
+                                )}
                             </div>
                             <span className="text-center font-bold text-sm leading-tight text-slate-800">{match.team_b?.name}</span>
                         </div>
@@ -245,6 +269,41 @@ export function MatchDetailsModal({ match, open, onOpenChange, onSuccess }: Matc
                             )}
                         </div>
                     </div>
+
+                    {/* Flag URLs - Only in edit mode */}
+                    {isEditMode && (
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Team A Flag URL */}
+                            <div className="space-y-1">
+                                <Label htmlFor="teamAFlagUrl" className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
+                                    Bandera {match.team_a?.name}
+                                </Label>
+                                <Input
+                                    id="teamAFlagUrl"
+                                    value={teamAFlagUrl}
+                                    onChange={(e) => setTeamAFlagUrl(e.target.value)}
+                                    placeholder="https://..."
+                                    disabled={isLoading}
+                                    className="h-9 text-sm"
+                                />
+                            </div>
+
+                            {/* Team B Flag URL */}
+                            <div className="space-y-1">
+                                <Label htmlFor="teamBFlagUrl" className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
+                                    Bandera {match.team_b?.name}
+                                </Label>
+                                <Input
+                                    id="teamBFlagUrl"
+                                    value={teamBFlagUrl}
+                                    onChange={(e) => setTeamBFlagUrl(e.target.value)}
+                                    placeholder="https://..."
+                                    disabled={isLoading}
+                                    className="h-9 text-sm"
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     {/* Result if available */}
                     {!isEditMode && match.match_result && (

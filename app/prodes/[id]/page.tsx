@@ -146,7 +146,7 @@ export default function ProdeDetailPage() {
                         <MatchList prodeId={id} variableConfigs={prode.prode_variable_configs} />
                     </TabsContent>
                     <TabsContent value="ranking" className="mt-0 focus-visible:outline-none">
-                        <RankingTab prodeId={id} />
+                        <RankingTab prodeId={id} prode={prode} />
                     </TabsContent>
                     <TabsContent value="rules" className="mt-0 focus-visible:outline-none">
                         <RulesTab prode={prode} />

@@ -22,37 +22,43 @@ apiClient.interceptors.request.use(
                 config.headers.Authorization = `Bearer ${token}`;
             }
 
-            // Add tenant slug header for company routes (multi-tenant)
-            // NOTE: Cannot use Host header - browsers don't allow modifying it
-            const userStr = localStorage.getItem('user');
-            console.log('[API Client] User from localStorage:', userStr ? 'exists' : 'null');
+            // Determine Tenant Slug
+            let tenantSlug: string | null = null;
 
-            if (userStr && config.url) {
+            // 1. Try from User Session (Logged in)
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
                 try {
                     const user = JSON.parse(userStr);
-                    console.log('[API Client] User role:', user.role);
-                    console.log('[API Client] Employee company slug:', user.employee?.company?.slug);
-
-                    // If user is empresa_admin or empleado and accessing company/employee routes
-                    if ((user.role === 'empresa_admin' || user.role === 'empleado') &&
-                        (config.url.includes('/company') || config.url.includes('/prodes') || config.url.includes('/predictions'))) {
-
-                        // Get company slug from user's employee data
-                        const companySlug = user.employee?.company?.slug;
-                        if (companySlug && config.headers) {
-                            // Use custom header - backend needs to be updated to accept this
-                            config.headers['X-Tenant-Slug'] = companySlug;
-                            console.log('[API Client] ✅ Setting X-Tenant-Slug:', companySlug);
-                            console.log('[API Client] All headers:', config.headers);
-                        } else {
-                            console.log('[API Client] ❌ No company slug found or no headers');
-                        }
-                    } else {
-                        console.log('[API Client] Route does not require tenant header');
+                    if ((user.role === 'empresa_admin' || user.role === 'empleado') && user.employee?.company?.slug) {
+                        tenantSlug = user.employee.company.slug;
                     }
                 } catch (e) {
                     console.error('[API Client] Error parsing user data:', e);
                 }
+            }
+
+            // 2. Fallback: Try from URL Subdomain (Public pages like /register)
+            if (!tenantSlug) {
+                const hostname = window.location.hostname;
+                // Logic: subdomain.domain.com or subdomain.localhost
+                const parts = hostname.split('.');
+                // Check if we have a subdomain
+                // e.g. "dolo.localhost" (2 parts) -> "dolo"
+                // "dolo.myapp.com" (3 parts) -> "dolo"
+                // "localhost" (1 part) -> null
+                if (parts.length >= 2 && !hostname.startsWith('127.0.0.1')) {
+                    // Exclude 'www' as a tenant if necessary, though unlikely for this app
+                    if (parts[0] !== 'www') {
+                        tenantSlug = parts[0];
+                    }
+                }
+            }
+
+            // Set Header if slug found
+            if (tenantSlug && config.headers) {
+                config.headers['X-Tenant-Slug'] = tenantSlug;
+                console.log('[API Client] ✅ Setting X-Tenant-Slug:', tenantSlug);
             }
         }
         return config;

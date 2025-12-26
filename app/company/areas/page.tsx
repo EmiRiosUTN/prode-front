@@ -144,12 +144,12 @@ export default function CompanyAreasPage() {
 
                                     <div className="flex items-center justify-between">
                                         <span
-                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${area.isActive
+                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${area.is_active
                                                 ? 'bg-green-100 text-green-800'
-                                                : 'bg-red-100 text-red-800'
+                                                : 'bg-slate-100 text-slate-800'
                                                 }`}
                                         >
-                                            {area.isActive ? 'Activa' : 'Inactiva'}
+                                            {area.is_active ? 'Activa' : 'Inactiva'}
                                         </span>
                                     </div>
 
@@ -198,12 +198,13 @@ export default function CompanyAreasPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Esta acción eliminará el área "{areaToDelete?.name}".
+                            Esta acción eliminará <strong>permanentemente</strong> el área "{areaToDelete?.name}".
+                            Si solo quieres ocultarla, edita el área y márcala como "Inactiva".
                             {areaToDelete?._count?.employees && areaToDelete._count.employees > 0 ? (
                                 <span className="block mt-2 text-destructive font-medium">
                                     Esta área tiene {areaToDelete._count.employees} empleado(s) asignado(s).
                                 </span>
-                            ) : null }
+                            ) : null}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

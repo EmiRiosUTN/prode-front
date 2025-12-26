@@ -71,9 +71,9 @@ export default function AdminCompetitionsPage() {
                         Gestiona las competiciones deportivas
                     </p>
                 </div>
-                <Button 
-                className="bg-slate-500 text-white hover:bg-slate-600"
-                onClick={() => setIsModalOpen(true)}>
+                <Button
+                    className="bg-slate-500 text-white hover:bg-slate-600"
+                    onClick={() => setIsModalOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Nueva competición
                 </Button>
@@ -122,12 +122,12 @@ export default function AdminCompetitionsPage() {
                                             {competition.sport_type}
                                         </span>
                                         <span
-                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${competition.isActive
+                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${competition.is_active
                                                 ? 'bg-green-100 text-green-800'
                                                 : 'bg-red-100 text-red-800'
                                                 }`}
                                         >
-                                            {competition.isActive ? 'Activa' : 'Inactiva'}
+                                            {competition.is_active ? 'Activa' : 'Inactiva'}
                                         </span>
                                     </div>
 

@@ -1,16 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Match, Prediction, ProdeVariableConfig } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { predictionApi } from '@/lib/api/endpoints';
 import { getErrorMessage } from '@/lib/api/client';
 import { useRouter } from 'next/navigation';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 interface PredictionFormProps {
     prodeId: string;
@@ -37,6 +44,50 @@ export function PredictionForm({ prodeId, match, variableConfigs, onSuccess }: P
 
 
     const [values, setValues] = useState(initialValues);
+    const [availableCopies, setAvailableCopies] = useState<Array<{
+        prodeId: string;
+        prodeName: string;
+        prediction: any;
+    }>>([]);
+    const [loadingCopies, setLoadingCopies] = useState(false);
+
+    const isLocked = match.isLocked || match.status !== 'scheduled' || new Date() >= new Date(match.match_date);
+
+    // Fetch available predictions to copy
+    useEffect(() => {
+        const fetchAvailableCopies = async () => {
+            try {
+                setLoadingCopies(true);
+                const response = await predictionApi.getAvailableCopies(match.id, prodeId);
+                setAvailableCopies(response.data.availablePredictions);
+            } catch (err) {
+                console.error('Error fetching available copies:', err);
+            } finally {
+                setLoadingCopies(false);
+            }
+        };
+
+        if (!isLocked) {
+            fetchAvailableCopies();
+        }
+    }, [match.id, prodeId, isLocked]);
+
+    const handleCopyPrediction = (sourceProdeId: string) => {
+        const source = availableCopies.find(c => c.prodeId === sourceProdeId);
+        if (!source) return;
+
+        const pred = source.prediction;
+        setValues({
+            home: pred.predicted_goals_team_a?.toString() || '',
+            away: pred.predicted_goals_team_b?.toString() || '',
+            homeYellow: pred.predicted_yellow_cards_team_a?.toString() || '',
+            awayYellow: pred.predicted_yellow_cards_team_b?.toString() || '',
+            homeRed: pred.predicted_red_cards_team_a?.toString() || '',
+            awayRed: pred.predicted_red_cards_team_b?.toString() || '',
+        });
+
+        toast.success(`Predicción copiada desde "${source.prodeName}"`);
+    };
 
     const hasVariable = (code: string) => {
         return variableConfigs.some(c => c.prediction_variable.code === code && c.is_active);
@@ -49,7 +100,7 @@ export function PredictionForm({ prodeId, match, variableConfigs, onSuccess }: P
 
 
 
-    const isLocked = match.isLocked || match.status !== 'scheduled' || new Date() >= new Date(match.match_date);
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -98,13 +149,40 @@ export function PredictionForm({ prodeId, match, variableConfigs, onSuccess }: P
                 </div>
             )}
 
+            {/* Copy from other prode */}
+            {!isLocked && availableCopies.length > 0 && (
+                <Card className="bg-blue-50 border-blue-200">
+                    <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                            <Copy className="h-5 w-5 text-blue-600" />
+                            <div className="flex-1">
+                                <Label className="text-sm font-medium text-blue-900">Copiar desde otro prode</Label>
+                                <p className="text-xs text-blue-700 mt-1">Tienes predicciones para este partido en otros prodes</p>
+                            </div>
+                            <Select onValueChange={handleCopyPrediction}>
+                                <SelectTrigger className="w-[200px] bg-white">
+                                    <SelectValue placeholder="Seleccionar prode" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableCopies.map(copy => (
+                                        <SelectItem key={copy.prodeId} value={copy.prodeId}>
+                                            {copy.prodeName}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
             {/* Goles - Always visible */}
             <Card>
                 <CardContent className="p-4 flex justify-between items-center gap-4">
                     <CardTitle className="text-sm font-medium">Predicción de goles</CardTitle>
                     <div className="flex items-center gap-6 flex-1 justify-center">
                         <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground hidden sm:inline">{match.team_a?.name}</span>
+                            <span className="text-sm text-muted-foreground hidden sm:flex items-center justify-end min-w-[80px] h-10">{match.team_a?.name}</span>
                             <Input
                                 value={values.home}
                                 onChange={e => handleChange('home', e.target.value)}
@@ -121,7 +199,7 @@ export function PredictionForm({ prodeId, match, variableConfigs, onSuccess }: P
                                 placeholder="-"
                                 inputMode="numeric"
                             />
-                            <span className="text-xs text-muted-foreground hidden sm:inline">{match.team_b?.name}</span>
+                            <span className="text-sm text-muted-foreground hidden sm:flex items-center justify-start min-w-[80px] h-10">{match.team_b?.name}</span>
                         </div>
                     </div>
                 </CardContent>
@@ -134,7 +212,7 @@ export function PredictionForm({ prodeId, match, variableConfigs, onSuccess }: P
                         <CardTitle className="text-sm font-medium w-32 shrink-0">Tarjetas amarillas</CardTitle>
                         <div className="flex items-center gap-6 flex-1 justify-center">
                             <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground hidden sm:inline">{match.team_a?.name}</span>
+                                <span className="text-sm text-muted-foreground hidden sm:flex items-center justify-end min-w-[80px] h-10">{match.team_a?.name}</span>
                                 <Input
                                     value={values.homeYellow}
                                     onChange={e => handleChange('homeYellow', e.target.value)}
@@ -151,7 +229,7 @@ export function PredictionForm({ prodeId, match, variableConfigs, onSuccess }: P
                                     placeholder="0"
                                     disabled={isLocked}
                                 />
-                                <span className="text-xs text-muted-foreground hidden sm:inline">{match.team_b?.name}</span>
+                                <span className="text-sm text-muted-foreground hidden sm:flex items-center justify-start min-w-[80px] h-10">{match.team_b?.name}</span>
                             </div>
                         </div>
                     </CardContent>
@@ -165,7 +243,7 @@ export function PredictionForm({ prodeId, match, variableConfigs, onSuccess }: P
                         <CardTitle className="text-sm font-medium w-32 shrink-0">Tarjetas rojas</CardTitle>
                         <div className="flex items-center gap-6 flex-1 justify-center">
                             <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground hidden sm:inline">{match.team_a?.name}</span>
+                                <span className="text-sm text-muted-foreground hidden sm:flex items-center justify-end min-w-[80px] h-10">{match.team_a?.name}</span>
                                 <Input
                                     value={values.homeRed}
                                     onChange={e => handleChange('homeRed', e.target.value)}
@@ -182,7 +260,7 @@ export function PredictionForm({ prodeId, match, variableConfigs, onSuccess }: P
                                     placeholder="0"
                                     disabled={isLocked}
                                 />
-                                <span className="text-xs text-muted-foreground hidden sm:inline">{match.team_b?.name}</span>
+                                <span className="text-sm text-muted-foreground hidden sm:flex items-center justify-start min-w-[80px] h-10">{match.team_b?.name}</span>
                             </div>
                         </div>
                     </CardContent>

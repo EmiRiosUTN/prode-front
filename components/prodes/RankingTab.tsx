@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { prodeApi } from '@/lib/api/endpoints';
-import { RankingResponse, IndividualRankingEntry } from '@/lib/types'; // Backend types
+import { useAuth } from '@/contexts/AuthContext';
+import { RankingResponse, IndividualRankingEntry, AreaRankingEntry, Prode } from '@/lib/types'; // Backend types
 import { getErrorMessage } from '@/lib/api/client';
-import { Loader2, Trophy, Medal } from 'lucide-react';
+import { Loader2, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
     Table,
     TableBody,
@@ -14,25 +17,36 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Badge } from '@/components/ui/badge';
 
 interface RankingTabProps {
     prodeId: string;
+    prode: Prode;
 }
 
-export function RankingTab({ prodeId }: RankingTabProps) {
+type RankingType = 'general' | 'my-area' | 'areas';
+
+export function RankingTab({ prodeId, prode }: RankingTabProps) {
+    // Determine default tab based on config
+    const config = prode.prode_ranking_config;
+    const defaultTab = config?.show_individual_general ? 'general' :
+        config?.show_individual_by_area ? 'my-area' :
+            config?.show_area_ranking ? 'areas' : 'general';
+
+    const [activeTab, setActiveTab] = useState<RankingType>(defaultTab as RankingType);
     const [rankingData, setRankingData] = useState<RankingResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { user } = useAuth();
 
     useEffect(() => {
-        loadRanking();
-    }, [prodeId]);
+        loadRanking(activeTab);
+    }, [prodeId, activeTab]);
 
-    const loadRanking = async () => {
+    const loadRanking = async (type: RankingType) => {
         try {
             setIsLoading(true);
-            const response = await prodeApi.getRankings(prodeId, 'general');
+            setError(null);
+            const response = await prodeApi.getRankings(prodeId, type);
             setRankingData(response.data);
         } catch (err) {
             setError(getErrorMessage(err));
@@ -42,16 +56,7 @@ export function RankingTab({ prodeId }: RankingTabProps) {
     };
 
     const getPositionBadge = (position: number) => {
-        switch (position) {
-            case 1:
-                return <Medal className="h-6 w-6 text-yellow-500" />;
-            case 2:
-                return <Medal className="h-6 w-6 text-gray-400" />;
-            case 3:
-                return <Medal className="h-6 w-6 text-amber-700" />;
-            default:
-                return <span className="text-muted-foreground font-mono font-bold w-6 text-center">{position}</span>;
-        }
+        return <span className="text-muted-foreground font-mono font-bold w-6 text-center">{position}</span>;
     };
 
     const getRowStyle = (position: number) => {
@@ -61,82 +66,221 @@ export function RankingTab({ prodeId }: RankingTabProps) {
         return "";
     }
 
-    if (isLoading) {
-        return (
-            <div className="flex justify-center p-8">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
+    const [isUserRowVisible, setIsUserRowVisible] = useState(false);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const userRowRef = useRef<HTMLTableRowElement>(null);
 
-    if (error) {
-        return (
-            <div className="p-4 bg-destructive/10 text-destructive rounded-md">
-                No se pudo cargar el ranking: {error}
-            </div>
-        );
-    }
+    // Monitor user row visibility with scroll events
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        const userRow = userRowRef.current;
 
-    if (!rankingData || rankingData.ranking.length === 0) {
+        if (!container || !userRow) return;
+
+        const checkVisibility = () => {
+            const containerRect = container.getBoundingClientRect();
+            const rowRect = userRow.getBoundingClientRect();
+
+            // Row is only considered visible if it's FULLY within the visible container area
+            // This means both top and bottom of the row must be within the container bounds
+            const isVisible = (
+                rowRect.top >= containerRect.top &&
+                rowRect.bottom <= containerRect.bottom
+            );
+
+            setIsUserRowVisible(isVisible);
+        };
+
+        // Check initially
+        checkVisibility();
+
+        // Check on scroll with requestAnimationFrame for smooth updates
+        let rafId: number;
+        const handleScroll = () => {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(checkVisibility);
+        };
+
+        container.addEventListener('scroll', handleScroll);
+
+        // Check on resize
+        window.addEventListener('resize', checkVisibility);
+
+        return () => {
+            if (rafId) cancelAnimationFrame(rafId);
+            container.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', checkVisibility);
+        };
+    }, [rankingData, activeTab]);
+
+    const renderIndividualTable = (entries: IndividualRankingEntry[]) => {
+        const currentUserEntry = entries.find(e => e.employeeId === user?.employee?.id);
+
         return (
-            <div className="text-center py-12 text-muted-foreground">
-                <Trophy className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                <p>Aún no hay participantes en el ranking.</p>
+            <div
+                ref={scrollContainerRef}
+                className="relative max-h-[600px] min-h-[400px] overflow-auto"
+            >
+                <Table>
+                    <TableHeader className="bg-muted/95 sticky top-0 z-30 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-muted/60">
+                        <TableRow>
+                            <TableHead className="w-[60px] text-center">#</TableHead>
+                            <TableHead>Participante</TableHead>
+                            <TableHead className="hidden sm:table-cell">Área</TableHead>
+                            <TableHead className="text-right">Puntos</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {currentUserEntry && (
+                            <TableRow
+                                className={`bg-primary/5 hover:bg-primary/10 border-b-2 border-primary/20 sticky top-[48px] z-20 shadow-md transition-all duration-200 ${isUserRowVisible ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'
+                                    }`}
+                            >
+                                <TableCell className="font-medium text-center py-3 font-mono text-primary">
+                                    {currentUserEntry.position}
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-sm text-primary">{currentUserEntry.employeeName} (Tú)</span>
+                                        <span className="text-xs text-muted-foreground sm:hidden">{currentUserEntry.areaName}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-muted-foreground">
+                                    {currentUserEntry.areaName}
+                                </TableCell>
+                                <TableCell className="text-right font-bold text-lg text-primary">
+                                    {currentUserEntry.totalPoints}
+                                </TableCell>
+                            </TableRow>
+                        )}
+                        {entries.map((entry) => (
+                            <TableRow
+                                key={entry.employeeId}
+                                ref={entry.employeeId === user?.employee?.id ? userRowRef : null}
+                                className={getRowStyle(entry.position)}
+                            >
+                                <TableCell className="font-medium text-center py-3">
+                                    <div className="flex justify-center">
+                                        {getPositionBadge(entry.position)}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <span className={`text-sm ${entry.employeeId === user?.employee?.id ? 'font-bold' : 'font-medium'}`}>
+                                            {entry.employeeName}
+                                            {entry.employeeId === user?.employee?.id && ' (Tú)'}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground sm:hidden">{entry.areaName}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-muted-foreground">
+                                    {entry.areaName}
+                                </TableCell>
+                                <TableCell className="text-right font-bold text-lg">
+                                    {entry.totalPoints}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
         );
-    }
+    };
+
+    const renderAreaTable = (entries: AreaRankingEntry[]) => (
+        <Table>
+            <TableHeader className="bg-muted/50">
+                <TableRow>
+                    <TableHead className="w-[60px] text-center">#</TableHead>
+                    <TableHead>Área</TableHead>
+                    <TableHead className="text-center">Participantes</TableHead>
+                    <TableHead className="text-right">Puntos {config?.area_ranking_calculation === 'average' ? '(Promedio)' : '(Total)'}</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {entries.map((entry) => (
+                    <TableRow key={entry.areaId} className={getRowStyle(entry.position)}>
+                        <TableCell className="font-medium text-center py-3">
+                            <div className="flex justify-center">
+                                {getPositionBadge(entry.position)}
+                            </div>
+                        </TableCell>
+                        <TableCell>
+                            <span className="font-semibold text-sm">{entry.areaName}</span>
+                            {/* Top employee tooltip could go here */}
+                        </TableCell>
+                        <TableCell className="text-center text-muted-foreground">
+                            {entry.participantsCount}
+                        </TableCell>
+                        <TableCell className="text-right font-bold text-lg">
+                            {entry.totalPoints}
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    );
 
     return (
         <Card className="border-none shadow-none">
             <CardHeader className="px-0 pt-0 pb-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <CardTitle className="text-lg">Tabla de Posiciones</CardTitle>
-                        <CardDescription>
-                            Total participantes: {rankingData.metadata.totalParticipants}
-                        </CardDescription>
+                <div className="flex flex-col space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle className="text-lg">Tabla de Posiciones</CardTitle>
+                            <CardDescription>
+                                {rankingData?.metadata ? `Total participantes: ${rankingData.metadata.totalParticipants}` : 'Cargando...'}
+                            </CardDescription>
+                        </div>
                     </div>
+
+                    <Tabs value={activeTab} onValueChange={(v) => {
+                        setActiveTab(v as RankingType);
+                        setRankingData(null);
+                    }} className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+                            {config?.show_individual_general && (
+                                <TabsTrigger value="general">General</TabsTrigger>
+                            )}
+                            {config?.show_individual_by_area && (
+                                <TabsTrigger value="my-area">Mi Área</TabsTrigger>
+                            )}
+                            {/* Add logic for more tabs if layout permits, or adjust grid-cols */}
+                            {config?.show_area_ranking && (
+                                <TabsTrigger value="areas">Competencia de Áreas</TabsTrigger>
+                            )}
+                        </TabsList>
+                    </Tabs>
                 </div>
             </CardHeader>
             <CardContent className="p-0">
-                <div className="rounded-md border overflow-hidden">
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow>
-                                <TableHead className="w-[60px] text-center">#</TableHead>
-                                <TableHead>Participante</TableHead>
-                                <TableHead className="hidden sm:table-cell">Área</TableHead>
-                                <TableHead className="text-right">Puntos</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {rankingData.ranking.map((entry) => (
-                                <TableRow key={entry.employeeId} className={getRowStyle(entry.position)}>
-                                    <TableCell className="font-medium text-center py-3">
-                                        <div className="flex justify-center">
-                                            {getPositionBadge(entry.position)}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex flex-col">
-                                            <span className="font-semibold text-sm">{entry.employeeName}</span>
-                                            <span className="text-xs text-muted-foreground sm:hidden">{entry.areaName}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="hidden sm:table-cell text-muted-foreground">
-                                        {entry.areaName}
-                                    </TableCell>
-                                    <TableCell className="text-right font-bold text-lg">
-                                        {entry.totalPoints}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
-                <p className="text-xs text-muted-foreground text-center mt-4">
-                    Última actualización: {new Date(rankingData.metadata.lastUpdated).toLocaleString()}
-                </p>
+                {isLoading ? (
+                    <div className="flex justify-center p-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                ) : error ? (
+                    <div className="p-4 bg-destructive/10 text-destructive rounded-md">
+                        No se pudo cargar el ranking: {error}
+                    </div>
+                ) : !rankingData || rankingData.ranking.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                        <Trophy className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                        <p>Aún no hay participantes en este ranking.</p>
+                    </div>
+                ) : (
+                    <div className="rounded-md border overflow-hidden">
+                        {activeTab === 'areas'
+                            ? renderAreaTable(rankingData.ranking as AreaRankingEntry[])
+                            : renderIndividualTable(rankingData.ranking as IndividualRankingEntry[])
+                        }
+                    </div>
+                )}
+
+                {rankingData?.metadata && (
+                    <p className="text-xs text-muted-foreground text-center mt-4">
+                        Última actualización: {new Date(rankingData.metadata.lastUpdated).toLocaleString()}
+                    </p>
+                )}
             </CardContent>
         </Card>
     );

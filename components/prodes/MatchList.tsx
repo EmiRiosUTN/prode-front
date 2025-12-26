@@ -112,8 +112,16 @@ export function MatchList({ prodeId, variableConfigs }: MatchListProps) {
                                         <span className="text-right font-bold text-xs md:text-sm leading-tight text-slate-800 line-clamp-2">
                                             {match.team_a?.name || 'Equipo A'}
                                         </span>
-                                        <div className="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-full bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center font-bold text-xs text-slate-700 shadow-sm border border-slate-200">
-                                            {match.team_a?.code}
+                                        <div className="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-full bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center font-bold text-xs text-slate-700 shadow-sm border border-slate-200 overflow-hidden">
+                                            {match.team_a?.flag_url ? (
+                                                <img
+                                                    src={match.team_a.flag_url}
+                                                    alt={match.team_a.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                match.team_a?.code
+                                            )}
                                         </div>
                                     </div>
 
@@ -155,8 +163,16 @@ export function MatchList({ prodeId, variableConfigs }: MatchListProps) {
 
                                     {/* Team B */}
                                     <div className="flex items-center gap-3 w-[40%] group-team">
-                                        <div className="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-full bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center font-bold text-xs text-slate-700 shadow-sm border border-slate-200">
-                                            {match.team_b?.code}
+                                        <div className="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-full bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center font-bold text-xs text-slate-700 shadow-sm border border-slate-200 overflow-hidden">
+                                            {match.team_b?.flag_url ? (
+                                                <img
+                                                    src={match.team_b.flag_url}
+                                                    alt={match.team_b.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                match.team_b?.code
+                                            )}
                                         </div>
                                         <span className="text-left font-bold text-xs md:text-sm leading-tight text-slate-800 line-clamp-2">
                                             {match.team_b?.name || 'Equipo B'}
