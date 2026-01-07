@@ -90,7 +90,7 @@ export default function LoginPage() {
                 <div className="absolute inset-0 bg-black/10" />
                 <div className="relative z-10 text-white text-center max-w-lg">
                     {config?.logo_url ? (
-                        <img src={config.logo_url} alt={config.name} className="h-24 mx-auto mb-8 object-contain brightness-0 invert" />
+                        <img src={config.logo_url} alt={config.name} className="h-24 mx-auto mb-8 object-contain" />
                     ) : (
                         <Building2 className="h-24 w-24 mx-auto mb-8 opacity-90" />
                     )}

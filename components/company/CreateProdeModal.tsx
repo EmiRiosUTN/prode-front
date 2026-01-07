@@ -44,6 +44,12 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
     const [enableAreaRanking, setEnableAreaRanking] = useState(false);
     const [areaRankingCalculation, setAreaRankingCalculation] = useState<'sum' | 'average'>('average');
 
+    // Rewards configuration states
+    const [winnerCount, setWinnerCount] = useState<number>(1);
+    const [individualPrize, setIndividualPrize] = useState('');
+    const [rewardAreaWinner, setRewardAreaWinner] = useState(false);
+    const [areaPrize, setAreaPrize] = useState('');
+
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [areas, setAreas] = useState<CompanyArea[]>([]);
     const [predictionVariables, setPredictionVariables] = useState<PredictionVariable[]>([]);
@@ -180,6 +186,10 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                 companyAreaId: participationMode === 'by_area' && companyAreaId ? companyAreaId : undefined,
                 showAreaRanking: enableAreaRanking,
                 areaRankingCalculation: enableAreaRanking ? areaRankingCalculation : undefined,
+                winnerCount,
+                individualPrize: individualPrize || undefined,
+                rewardAreaWinner,
+                areaPrize: areaPrize || undefined,
                 variableConfigs,
             });
 
@@ -191,6 +201,10 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
             setCompanyAreaId('');
             setEnableAreaRanking(false);
             setAreaRankingCalculation('average');
+            setWinnerCount(1);
+            setIndividualPrize('');
+            setRewardAreaWinner(false);
+            setAreaPrize('');
             setSelectedVariables(new Map());
             setStep(1);
 
@@ -206,7 +220,7 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>
                         {step === 1 ? 'Nuevo Prode - Información Básica' : 'Nuevo Prode - Configurar Variables'}
@@ -218,8 +232,8 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="py-4">
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                    <div className="py-4 overflow-y-auto flex-1 px-1">
                         {step === 1 ? (
                             <div className="space-y-4">
                                 <div className="space-y-2">
@@ -368,6 +382,84 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                                         )}
                                     </div>
                                 )}
+
+                                {/* Rewards Configuration Section */}
+                                <div className="space-y-4 pt-4 border-t">
+                                    <div>
+                                        <h3 className="text-sm font-semibold mb-2">Configuración de Premios</h3>
+                                        <p className="text-xs text-muted-foreground mb-3">
+                                            Define los premios para los ganadores del prode
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="winnerCount">Cantidad de Ganadores</Label>
+                                        <Select
+                                            value={winnerCount.toString()}
+                                            onValueChange={(value) => setWinnerCount(parseInt(value))}
+                                            disabled={isLoading}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="1">Top 1 (Solo el primero)</SelectItem>
+                                                <SelectItem value="3">Top 3 (Los 3 primeros)</SelectItem>
+                                                <SelectItem value="5">Top 5 (Los 5 primeros)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="individualPrize">Premio Individual (Opcional)</Label>
+                                        <Textarea
+                                            id="individualPrize"
+                                            placeholder="Ej: $50,000 en premios, Gift card de $100, etc."
+                                            value={individualPrize}
+                                            onChange={(e) => setIndividualPrize(e.target.value)}
+                                            disabled={isLoading}
+                                            rows={2}
+                                        />
+                                    </div>
+
+                                    {enableAreaRanking && (
+                                        <>
+                                            <div className="flex items-start space-x-2">
+                                                <Checkbox
+                                                    id="rewardAreaWinner"
+                                                    checked={rewardAreaWinner}
+                                                    onCheckedChange={(checked) => setRewardAreaWinner(checked as boolean)}
+                                                    disabled={isLoading}
+                                                />
+                                                <div className="grid gap-1.5 leading-none">
+                                                    <Label
+                                                        htmlFor="rewardAreaWinner"
+                                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                                    >
+                                                        Premiar al Área Ganadora
+                                                    </Label>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Otorga un premio adicional al área con mejor desempeño
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {rewardAreaWinner && (
+                                                <div className="space-y-2 pl-6">
+                                                    <Label htmlFor="areaPrize">Premio para Área Ganadora</Label>
+                                                    <Textarea
+                                                        id="areaPrize"
+                                                        placeholder="Ej: Almuerzo grupal, Día libre para el equipo, etc."
+                                                        value={areaPrize}
+                                                        onChange={(e) => setAreaPrize(e.target.value)}
+                                                        disabled={isLoading}
+                                                        rows={2}
+                                                    />
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         ) : (
                             <div className="space-y-3">

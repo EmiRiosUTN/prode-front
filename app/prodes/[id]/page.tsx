@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MatchList } from '@/components/prodes/MatchList';
 import { RulesTab } from '@/components/prodes/RulesTab';
 import { RankingTab } from '@/components/prodes/RankingTab';
+import { RewardsTab } from '@/components/prodes/RewardsTab';
 
 export default function ProdeDetailPage() {
     const params = useParams();
@@ -138,6 +139,12 @@ export default function ProdeDetailPage() {
                         >
                             Reglas
                         </TabsTrigger>
+                        <TabsTrigger
+                            value="rewards"
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-slate-900 rounded-none px-1 pb-2 text-slate-500 data-[state=active]:text-slate-900 font-medium text-sm hover:text-slate-800 transition-colors"
+                        >
+                            Premios
+                        </TabsTrigger>
                     </TabsList>
                 </div>
 
@@ -150,6 +157,14 @@ export default function ProdeDetailPage() {
                     </TabsContent>
                     <TabsContent value="rules" className="mt-0 focus-visible:outline-none">
                         <RulesTab prode={prode} />
+                    </TabsContent>
+                    <TabsContent value="rewards" className="mt-0 focus-visible:outline-none">
+                        <RewardsTab
+                            winnerCount={prode.winner_count || 1}
+                            individualPrize={prode.individual_prize}
+                            rewardAreaWinner={prode.reward_area_winner || false}
+                            areaPrize={prode.area_prize}
+                        />
                     </TabsContent>
                 </div>
             </Tabs>

@@ -177,6 +177,12 @@ export interface Prode {
     competition?: Competition;
     is_active: boolean; // Backend uses snake_case
 
+    // Rewards configuration
+    winner_count?: number;
+    individual_prize?: string;
+    reward_area_winner?: boolean;
+    area_prize?: string;
+
     prode_variable_configs?: ProdeVariableConfig[]; // Backend uses snake_case
     prode_ranking_config?: ProdeRankingConfig; // Backend uses snake_case
     _count?: {
