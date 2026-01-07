@@ -67,8 +67,28 @@ export function RankingTab({ prodeId, prode }: RankingTabProps) {
     }
 
     const [isUserRowVisible, setIsUserRowVisible] = useState(false);
+    const [headerHeight, setHeaderHeight] = useState(48);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const userRowRef = useRef<HTMLTableRowElement>(null);
+    const headerRef = useRef<HTMLTableSectionElement>(null);
+
+    // Measure header height on mount and resize
+    useEffect(() => {
+        const header = headerRef.current;
+        if (!header) return;
+
+        const measureHeight = () => {
+            const height = header.getBoundingClientRect().height;
+            setHeaderHeight(height);
+        };
+
+        measureHeight();
+        window.addEventListener('resize', measureHeight);
+
+        return () => {
+            window.removeEventListener('resize', measureHeight);
+        };
+    }, [rankingData]);
 
     // Monitor user row visibility with scroll events
     useEffect(() => {
@@ -81,20 +101,16 @@ export function RankingTab({ prodeId, prode }: RankingTabProps) {
             const containerRect = container.getBoundingClientRect();
             const rowRect = userRow.getBoundingClientRect();
 
-            // Row is only considered visible if it's FULLY within the visible container area
-            // This means both top and bottom of the row must be within the container bounds
-            const isVisible = (
-                rowRect.top >= containerRect.top &&
-                rowRect.bottom <= containerRect.bottom
-            );
+            const stickyUserRowPosition = containerRect.top + headerHeight;
 
-            setIsUserRowVisible(isVisible);
+            const tolerance = 10;
+            const isAtStickyPosition = Math.abs(rowRect.top - stickyUserRowPosition) < tolerance;
+
+            setIsUserRowVisible(isAtStickyPosition);
         };
 
-        // Check initially
         checkVisibility();
 
-        // Check on scroll with requestAnimationFrame for smooth updates
         let rafId: number;
         const handleScroll = () => {
             if (rafId) cancelAnimationFrame(rafId);
@@ -103,7 +119,6 @@ export function RankingTab({ prodeId, prode }: RankingTabProps) {
 
         container.addEventListener('scroll', handleScroll);
 
-        // Check on resize
         window.addEventListener('resize', checkVisibility);
 
         return () => {
@@ -111,7 +126,7 @@ export function RankingTab({ prodeId, prode }: RankingTabProps) {
             container.removeEventListener('scroll', handleScroll);
             window.removeEventListener('resize', checkVisibility);
         };
-    }, [rankingData, activeTab]);
+    }, [rankingData, activeTab, headerHeight]);
 
     const renderIndividualTable = (entries: IndividualRankingEntry[]) => {
         const currentUserEntry = entries.find(e => e.employeeId === user?.employee?.id);
@@ -122,7 +137,7 @@ export function RankingTab({ prodeId, prode }: RankingTabProps) {
                 className="relative max-h-[600px] min-h-[400px] overflow-auto"
             >
                 <Table>
-                    <TableHeader className="bg-muted/95 sticky top-0 z-30 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-muted/60">
+                    <TableHeader ref={headerRef} className="bg-muted/95 sticky top-0 z-30 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-muted/60">
                         <TableRow>
                             <TableHead className="w-[60px] text-center">#</TableHead>
                             <TableHead>Participante</TableHead>
@@ -131,24 +146,37 @@ export function RankingTab({ prodeId, prode }: RankingTabProps) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {currentUserEntry && (
+                        {currentUserEntry && !isUserRowVisible && (
                             <TableRow
-                                className={`bg-primary/5 hover:bg-primary/10 border-b-2 border-primary/20 sticky top-[48px] z-20 shadow-md transition-all duration-200 ${isUserRowVisible ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'
-                                    }`}
+                                className="border-b-2 border-primary/20 sticky z-20 shadow-md"
+                                style={{
+                                    top: `${headerHeight}px`,
+                                    backgroundColor: 'rgba(var(--primary-rgb, 59 130 246) / 0.05)',
+                                    backdropFilter: 'blur(8px)',
+                                }}
                             >
-                                <TableCell className="font-medium text-center py-3 font-mono text-primary">
+                                <TableCell
+                                    className="font-medium text-center py-3 font-mono text-primary"
+                                    style={{ backgroundColor: 'white' }}
+                                >
                                     {currentUserEntry.position}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell style={{ backgroundColor: 'white' }}>
                                     <div className="flex flex-col">
                                         <span className="font-bold text-sm text-primary">{currentUserEntry.employeeName} (Tú)</span>
                                         <span className="text-xs text-muted-foreground sm:hidden">{currentUserEntry.areaName}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="hidden sm:table-cell text-muted-foreground">
+                                <TableCell
+                                    className="hidden sm:table-cell text-muted-foreground"
+                                    style={{ backgroundColor: 'white' }}
+                                >
                                     {currentUserEntry.areaName}
                                 </TableCell>
-                                <TableCell className="text-right font-bold text-lg text-primary">
+                                <TableCell
+                                    className="text-right font-bold text-lg text-primary"
+                                    style={{ backgroundColor: 'white' }}
+                                >
                                     {currentUserEntry.totalPoints}
                                 </TableCell>
                             </TableRow>

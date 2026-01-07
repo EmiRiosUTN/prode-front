@@ -307,6 +307,10 @@ export const companyApi = {
         companyAreaId?: string;
         showAreaRanking?: boolean;
         areaRankingCalculation?: 'sum' | 'average';
+        winnerCount?: number;
+        individualPrize?: string;
+        rewardAreaWinner?: boolean;
+        areaPrize?: string;
         variableConfigs: Array<{
             predictionVariableId: string;
             points: number;
@@ -414,6 +418,20 @@ export const predictionApi = {
                 };
             }>;
         }>>(`/employee/predictions/match/${matchId}/available-copies?prodeId=${prodeId}`);
+        return response.data;
+    },
+};
+
+export const employeeApi = {
+    getMatchAnalysis: async (matchId: string) => {
+        const response = await apiClient.get<ApiResponse<{
+            teamA_win_probability: number;
+            teamB_win_probability: number;
+            draw_probability: number;
+            expected_yellow_cards: { min: number; max: number };
+            expected_red_cards: { min: number; max: number };
+            generated_at: string;
+        } | null>>(`/employee/matches/${matchId}/ai-analysis`);
         return response.data;
     },
 };

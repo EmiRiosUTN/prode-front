@@ -114,7 +114,7 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <Label htmlFor="name">Nombre de la Empresa *</Label>
+                            <Label htmlFor="name">Nombre de la empresa *</Label>
                             <Input
                                 id="name"
                                 value={formData.name}
@@ -136,12 +136,12 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
                                 disabled={isSubmitting}
                             />
                             <p className="text-xs text-muted-foreground mt-1">
-                                Se usará como subdominio: {formData.slug || 'slug'}.mundialpro.com
+                                Se usará como subdominio: {formData.slug || 'slug'}.prodemax.com
                             </p>
                         </div>
 
                         <div>
-                            <Label htmlFor="corporateDomain">Dominio Corporativo (opcional)</Label>
+                            <Label htmlFor="corporateDomain">Dominio corporativo (opcional)</Label>
                             <Input
                                 id="corporateDomain"
                                 value={formData.corporateDomain}
@@ -166,7 +166,7 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
                         </div>
 
                         <div className="border-t pt-4">
-                            <h3 className="font-semibold mb-3">Administrador de la Empresa</h3>
+                            <h3 className="font-semibold mb-3">Administrador de la empresa</h3>
 
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
