@@ -266,14 +266,13 @@ export function RankingTab({ prodeId, prode }: RankingTabProps) {
                         setActiveTab(v as RankingType);
                         setRankingData(null);
                     }} className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+                        <TabsList className="grid w-full grid-cols-3">
                             {config?.show_individual_general && (
                                 <TabsTrigger value="general">General</TabsTrigger>
                             )}
                             {config?.show_individual_by_area && (
                                 <TabsTrigger value="my-area">Mi Área</TabsTrigger>
                             )}
-                            {/* Add logic for more tabs if layout permits, or adjust grid-cols */}
                             {config?.show_area_ranking && (
                                 <TabsTrigger value="areas">Competencia de Áreas</TabsTrigger>
                             )}
