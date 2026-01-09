@@ -48,6 +48,8 @@ export default function AdminCompaniesPage() {
                 secondaryColor: data.secondaryColor,
                 adminEmail: data.adminEmail,
                 adminPassword: data.adminPassword,
+                adminFirstName: data.adminFirstName,
+                adminLastName: data.adminLastName,
             });
             await loadCompanies(); // Reload list
         } catch (err) {
@@ -80,9 +82,9 @@ export default function AdminCompaniesPage() {
                         Gestiona las empresas registradas en la plataforma
                     </p>
                 </div>
-                <Button 
-                className="bg-slate-500 text-white hover:bg-slate-600"
-                onClick={() => setIsModalOpen(true)}>
+                <Button
+                    className="bg-slate-500 text-white hover:bg-slate-600"
+                    onClick={() => setIsModalOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Nueva empresa
                 </Button>
@@ -142,22 +144,13 @@ export default function AdminCompaniesPage() {
                                         </span>
                                     </div>
 
-                                    {(company.primary_color || company.secondary_color) && (
+                                    {company.primary_color && (
                                         <div className="flex items-center space-x-2">
-                                            {company.primary_color && (
-                                                <div
-                                                    className="h-6 w-6 rounded border border-slate-200"
-                                                    style={{ backgroundColor: company.primary_color }}
-                                                    title="Color primario"
-                                                />
-                                            )}
-                                            {company.secondary_color && (
-                                                <div
-                                                    className="h-6 w-6 rounded border border-slate-200"
-                                                    style={{ backgroundColor: company.secondary_color }}
-                                                    title="Color secundario"
-                                                />
-                                            )}
+                                            <div
+                                                className="h-6 w-6 rounded border border-slate-200"
+                                                style={{ backgroundColor: company.primary_color }}
+                                                title="Color primario"
+                                            />
                                         </div>
                                     )}
 
@@ -172,7 +165,7 @@ export default function AdminCompaniesPage() {
                                             }}
                                         >
                                             <Eye className="h-4 w-4 mr-1" />
-                                            Ver Detalles
+                                            Ver detalles
                                         </Button>
                                     </div>
                                 </div>

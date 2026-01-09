@@ -76,10 +76,8 @@ export default function CompanyEmployeesPage() {
 
     const handleToggleBlockClick = (employee: Employee) => {
         if (employee.is_blocked) {
-            // Unblock directly without confirmation
             handleToggleBlock(employee);
         } else {
-            // Show confirmation dialog for blocking
             setEmployeeToBlock(employee);
             setBlockDialogOpen(true);
         }

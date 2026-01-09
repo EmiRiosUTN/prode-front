@@ -32,7 +32,7 @@ export default function CompanyLayout({ children }: { children: ReactNode }) {
                         <div className="flex justify-between items-center h-16">
                             <div className="flex items-center space-x-8">
                                 <h1 className="text-xl font-bold">
-                                    {user?.employee?.company?.name || 'Panel de Empresa'}
+                                    {user?.employee?.company?.name || 'Panel de empresa'}
                                 </h1>
                                 <nav className="hidden md:flex space-x-4">
                                     {navItems.map((item) => {

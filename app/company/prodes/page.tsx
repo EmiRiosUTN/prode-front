@@ -93,7 +93,14 @@ export default function CompanyProdesPage() {
                         Gestiona los prodes de tu empresa
                     </p>
                 </div>
-                <Button onClick={() => setCreateModalOpen(true)}>
+                <Button
+                    onClick={() => setCreateModalOpen(true)}
+                    className="hover:opacity-90"
+                    style={{
+                        backgroundColor: 'hsl(var(--primary))',
+                        color: 'hsl(var(--primary-foreground))'
+                    }}
+                >
                     <Plus className="h-4 w-4 mr-2" />
                     Nuevo Prode
                 </Button>

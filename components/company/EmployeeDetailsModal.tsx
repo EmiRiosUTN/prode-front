@@ -10,7 +10,7 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Mail, Phone, Building2, Calendar, User } from 'lucide-react';
+import { Mail, Phone, Building2, User } from 'lucide-react';
 
 interface EmployeeDetailsModalProps {
     employee: Employee | null;

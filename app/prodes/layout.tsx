@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
-import { LogOut, Trophy, BarChart3 } from 'lucide-react';
+import { LogOut, Trophy } from 'lucide-react';
 
 export default function ProdesLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
@@ -24,14 +24,18 @@ export default function ProdesLayout({ children }: { children: ReactNode }) {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16">
                             <div className="flex items-center space-x-8">
-                                <h1 className="text-xl font-bold">Prode</h1>
+                                <h1 className="text-xl font-normal" style={{
+                                    color: 'hsl(var(--primary))'
+                                }}>
+                                    {user?.employee?.company?.name}
+                                </h1>
                                 <nav className="hidden md:flex space-x-4">
                                     <button
                                         onClick={() => router.push('/prodes')}
                                         className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
                                     >
                                         <Trophy className="h-4 w-4" />
-                                        <span>Mis Prodes</span>
+                                        <span>Mis prodes</span>
                                     </button>
                                 </nav>
                             </div>

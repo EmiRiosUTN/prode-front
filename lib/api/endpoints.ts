@@ -61,6 +61,8 @@ export interface CreateCompanyRequest {
     secondaryColor?: string; // Backend actually uses camelCase
     adminEmail: string;
     adminPassword: string;
+    adminFirstName?: string;
+    adminLastName?: string;
 }
 
 export interface UpdateCompanyRequest {

@@ -78,7 +78,7 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle className="flex items-center justify-between">
-                        <span>Detalles de la Empresa</span>
+                        <span>Detalles de la empresa</span>
                         {!isEditMode && (
                             <Button
                                 variant="outline"
@@ -114,7 +114,6 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                         )}
                     </div>
 
-                    {/* Corporate Domain - Read Only */}
                     <div className="space-y-2">
                         <Label className="flex items-center">
                             <Mail className="h-4 w-4 mr-2" />
@@ -123,18 +122,16 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                         <p className="text-base">{company.corporate_domain || 'No configurado'}</p>
                     </div>
 
-                    {/* Logo URL - Read Only */}
                     <div className="space-y-2">
                         <Label>URL del Logo</Label>
                         <p className="text-base">{company.logo_url || 'No configurado'}</p>
                     </div>
 
-                    {/* Colors */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="primaryColor" className="flex items-center">
                                 <Palette className="h-4 w-4 mr-2" />
-                                Color Primario
+                                Color primario
                             </Label>
                             {isEditMode ? (
                                 <div className="flex space-x-2">
@@ -161,21 +158,8 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                                 </div>
                             )}
                         </div>
-
-                        {/* Secondary Color - Read Only */}
-                        <div className="space-y-2">
-                            <Label>Color Secundario</Label>
-                            <div className="flex items-center space-x-2">
-                                <div
-                                    className="w-8 h-8 rounded border"
-                                    style={{ backgroundColor: company.secondary_color }}
-                                />
-                                <span className="text-base">{company.secondary_color}</span>
-                            </div>
-                        </div>
                     </div>
 
-                    {/* Stats */}
                     {!isEditMode && (
                         <div className="pt-4 border-t">
                             <h4 className="font-semibold mb-2">Estadísticas</h4>
