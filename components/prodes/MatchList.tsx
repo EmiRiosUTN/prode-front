@@ -224,8 +224,12 @@ export function MatchList({ prodeId, variableConfigs }: MatchListProps) {
                                     size="sm"
                                     className={`w-full h-8 text-xs ${hasPrediction
                                         ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200 border border-slate-200 bg-white'
-                                        : 'bg-slate-900 text-white hover:bg-slate-800'
+                                        : 'hover:opacity-90'
                                         }`}
+                                    style={!hasPrediction ? {
+                                        backgroundColor: 'hsl(var(--primary))',
+                                        color: 'hsl(var(--primary-foreground))'
+                                    } : undefined}
                                 >
                                     {isLocked ? (
                                         <>

@@ -271,10 +271,14 @@ export function PredictionForm({ prodeId, match, variableConfigs, onSuccess }: P
 
             <Button
                 type="submit"
-                className={`w-full h-12 text-md font-light transition-all ${isLocked
+                className={`w-full h-12 text-md font-light transition-all hover:opacity-90 ${isLocked
                     ? "bg-slate-200 text-slate-500 cursor-not-allowed hover:bg-slate-200"
-                    : "bg-green-600 hover:bg-green-700 text-white hover:cursor-pointer"
+                    : "hover:cursor-pointer"
                     }`}
+                style={!isLocked ? {
+                    backgroundColor: 'hsl(var(--primary))',
+                    color: 'hsl(var(--primary-foreground))'
+                } : undefined}
                 disabled={saving || isLocked}
             >
                 {saving ? (

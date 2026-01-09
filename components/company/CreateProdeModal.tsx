@@ -546,7 +546,15 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                             </Button>
                         )}
 
-                        <Button type="submit" disabled={isLoading}>
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="hover:opacity-90"
+                            style={{
+                                backgroundColor: 'hsl(var(--primary))',
+                                color: 'hsl(var(--primary-foreground))'
+                            }}
+                        >
                             {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

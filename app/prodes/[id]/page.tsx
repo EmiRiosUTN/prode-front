@@ -69,16 +69,15 @@ export default function ProdeDetailPage() {
     return (
         <div className="space-y-6 pb-8">
             {/* Hero Header */}
-            <div className={`relative overflow-hidden rounded-xl p-6 md:p-8 ${prode.competition?.sport_type === 'futbol' ? 'bg-gradient-to-br from-green-800 to-emerald-900' :
-                prode.competition?.sport_type === 'basketball' ? 'bg-gradient-to-br from-orange-700 to-red-900' :
-                    'bg-gradient-to-br from-slate-800 to-slate-900'
-                } text-white shadow-lg`}>
+            <div className="relative overflow-hidden rounded-xl p-6 md:p-8 bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--primary))]/80 text-white shadow-lg" style={{
+                background: `linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary)) 80%)`
+            }}>
                 <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10"></div>
                 <div className="relative z-10">
-                    <div className="flex items-center space-x-2 text-slate-300 text-xs mb-3">
+                    <div className="flex items-center space-x-2 text-white/80 text-xs mb-3">
                         <Button
                             variant="link"
-                            className="text-slate-300 hover:text-white p-0 h-auto font-normal"
+                            className="text-white/80 hover:text-white p-0 h-auto font-normal"
                             onClick={() => router.push('/prodes')}
                         >
                             <ArrowLeft className="mr-1 h-3 w-3" />
@@ -93,7 +92,7 @@ export default function ProdeDetailPage() {
                             <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1">
                                 {prode.name}
                             </h1>
-                            <p className="text-slate-200 text-sm md:text-base max-w-2xl leading-relaxed opacity-90 line-clamp-2">
+                            <p className="text-white/90 text-sm md:text-base max-w-2xl leading-relaxed opacity-90 line-clamp-2">
                                 {prode.description}
                             </p>
                         </div>
@@ -101,13 +100,13 @@ export default function ProdeDetailPage() {
                         {/* Highlights / Stats */}
                         <div className="flex gap-3 bg-white/10 backdrop-blur-sm p-2 rounded-lg border border-white/20 self-start md:self-auto">
                             <div className="px-2 border-r border-white/20 text-center">
-                                <span className="block text-[10px] uppercase tracking-wider text-slate-300 font-semibold">Inicio</span>
+                                <span className="block text-[10px] uppercase tracking-wider text-white/80 font-semibold">Inicio</span>
                                 <span className="font-mono text-sm font-bold">
                                     {prode.competition?.start_date ? formatDate(prode.competition.start_date).split(' ')[0] : '-'}
                                 </span>
                             </div>
                             <div className="px-2 text-center">
-                                <span className="block text-[10px] uppercase tracking-wider text-slate-300 font-semibold">Fin</span>
+                                <span className="block text-[10px] uppercase tracking-wider text-white/80 font-semibold">Fin</span>
                                 <span className="font-mono text-sm font-bold">
                                     {prode.competition?.end_date ? formatDate(prode.competition.end_date).split(' ')[0] : '-'}
                                 </span>
@@ -123,25 +122,25 @@ export default function ProdeDetailPage() {
                     <TabsList className="bg-transparent h-auto p-0 space-x-6">
                         <TabsTrigger
                             value="matches"
-                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-slate-900 rounded-none px-1 pb-2 text-slate-500 data-[state=active]:text-slate-900 font-medium text-sm hover:text-slate-800 transition-colors"
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2 text-slate-500 data-[state=active]:text-primary font-medium text-sm hover:text-slate-800 transition-colors"
                         >
                             Partidos
                         </TabsTrigger>
                         <TabsTrigger
                             value="ranking"
-                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-slate-900 rounded-none px-1 pb-2 text-slate-500 data-[state=active]:text-slate-900 font-medium text-sm hover:text-slate-800 transition-colors"
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2 text-slate-500 data-[state=active]:text-primary font-medium text-sm hover:text-slate-800 transition-colors"
                         >
                             Ranking
                         </TabsTrigger>
                         <TabsTrigger
                             value="rules"
-                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-slate-900 rounded-none px-1 pb-2 text-slate-500 data-[state=active]:text-slate-900 font-medium text-sm hover:text-slate-800 transition-colors"
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2 text-slate-500 data-[state=active]:text-primary font-medium text-sm hover:text-slate-800 transition-colors"
                         >
                             Reglas
                         </TabsTrigger>
                         <TabsTrigger
                             value="rewards"
-                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-slate-900 rounded-none px-1 pb-2 text-slate-500 data-[state=active]:text-slate-900 font-medium text-sm hover:text-slate-800 transition-colors"
+                            className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2 text-slate-500 data-[state=active]:text-primary font-medium text-sm hover:text-slate-800 transition-colors"
                         >
                             Premios
                         </TabsTrigger>

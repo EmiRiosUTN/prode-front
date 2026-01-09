@@ -93,9 +93,8 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
                 <div className="p-6">
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold">Nueva Empresa</h2>
+                    <div className="lex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold">Nueva empresa</h2>
                         <button
                             onClick={onClose}
                             className="text-muted-foreground hover:text-foreground transition-colors"
@@ -229,7 +228,7 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <Label htmlFor="primaryColor">Color Primario</Label>
+                                    <Label htmlFor="primaryColor">Color primario</Label>
                                     <div className="flex space-x-2">
                                         <Input
                                             id="primaryColor"
@@ -247,30 +246,10 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
                                         />
                                     </div>
                                 </div>
-
-                                <div>
-                                    <Label htmlFor="secondaryColor">Color Secundario</Label>
-                                    <div className="flex space-x-2">
-                                        <Input
-                                            id="secondaryColor"
-                                            type="color"
-                                            value={formData.secondaryColor}
-                                            onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
-                                            className="w-16 h-10"
-                                            disabled={isSubmitting}
-                                        />
-                                        <Input
-                                            value={formData.secondaryColor}
-                                            onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
-                                            placeholder="#424242"
-                                            disabled={isSubmitting}
-                                        />
-                                    </div>
-                                </div>
                             </div>
 
                             <div className="mt-4">
-                                <Label htmlFor="logoUrl">URL del Logo (opcional)</Label>
+                                <Label htmlFor="logoUrl">URL del logo</Label>
                                 <Input
                                     id="logoUrl"
                                     value={formData.logoUrl}
@@ -296,7 +275,7 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
                                 className="bg-slate-900 text-white hover:bg-slate-950"
                                 type="submit"
                                 disabled={isSubmitting}>
-                                {isSubmitting ? 'Creando...' : 'Crear Empresa'}
+                                {isSubmitting ? 'Creando...' : 'Crear empresa'}
                             </Button>
                         </div>
                     </form>

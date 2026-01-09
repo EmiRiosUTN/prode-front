@@ -68,8 +68,8 @@ export default function ProdesPage() {
         <Card key={prode.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 border-slate-200 flex flex-col group">
             {/* Gradient Header */}
             <div className={`h-2 bg-gradient-to-r ${prode.competition?.sport_type === 'futbol' ? 'from-green-500 to-emerald-600' :
-                    prode.competition?.sport_type === 'basketball' ? 'from-orange-500 to-red-600' :
-                        'from-slate-700 to-slate-900'
+                prode.competition?.sport_type === 'basketball' ? 'from-orange-500 to-red-600' :
+                    'from-slate-700 to-slate-900'
                 }`} />
 
             <CardHeader className="pb-3 pt-5">
@@ -143,15 +143,22 @@ export default function ProdesPage() {
             <div className="p-4 bg-slate-50 border-t border-slate-100 mt-auto">
                 {isAvailable ? (
                     <Button
-                        className="w-full bg-slate-900 text-white hover:bg-slate-800 shadow-sm"
+                        className="w-full shadow-sm"
+                        style={{
+                            backgroundColor: 'hsl(var(--primary))',
+                            color: 'hsl(var(--primary-foreground))'
+                        }}
                         onClick={() => handleJoinProde(prode.id)}
                     >
                         Unirse al Prode
                     </Button>
                 ) : (
                     <Button
-                        className="w-full bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 hover:text-slate-900 shadow-sm"
-                        variant="ghost"
+                        className="w-full shadow-sm hover:opacity-90"
+                        style={{
+                            backgroundColor: 'hsl(var(--primary))',
+                            color: 'hsl(var(--primary-foreground))'
+                        }}
                         onClick={() => router.push(`/prodes/${prode.id}`)}
                     >
                         Ver Prode
@@ -164,14 +171,16 @@ export default function ProdesPage() {
     return (
         <div className="space-y-10 pb-10">
             {/* Header Section with Pattern */}
-            <div className="relative overflow-hidden rounded-2xl bg-slate-900 text-white p-8 md:p-12 mb-8">
+            <div className="relative overflow-hidden rounded-2xl text-white p-8 md:p-12 mb-8" style={{
+                background: `linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary)) 60%, hsl(var(--primary)) 90%)`
+            }}>
                 <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10"></div>
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/5 to-black/10"></div>
                 <div className="relative z-10 max-w-2xl">
                     <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
                         Tus Prodes
                     </h1>
-                    <p className="text-slate-300 text-lg leading-relaxed">
+                    <p className="text-white/90 text-lg leading-relaxed">
                         Gestiona tus torneos, realiza predicciones y compite con tus compañeros para ver quién sabe más de deportes.
                     </p>
                 </div>
@@ -214,7 +223,7 @@ export default function ProdesPage() {
             <section className="space-y-6">
                 <div className="flex items-center justify-between border-b pb-4">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Prodes Disponibles</h2>
+                        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Prodes disponibles</h2>
                         <p className="text-muted-foreground text-sm">
                             Nuevos torneos a los que puedes unirte
                         </p>
