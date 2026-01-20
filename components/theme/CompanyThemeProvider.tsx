@@ -13,11 +13,12 @@ export function CompanyThemeProvider() {
         const fetchTheme = async () => {
             try {
                 // Try to get public config based on subdomain
-                const config = await companyApi.getPublicConfig(); // This calls /company/public/config
-                if (config) {
-                    setPrimaryColor(config.primary_color);
-                    setSecondaryColor(config.secondary_color);
-                    console.log(`[Theme] Loaded config for ${config.name}`);
+                const response = await companyApi.getPublicConfig();
+                if (response && response.success && response.data) {
+                    const company = response.data;
+                    setPrimaryColor(company.primary_color);
+                    setSecondaryColor(company.secondary_color);
+                    console.log(`[Theme] Loaded config for ${company.name}`);
                 }
             } catch (error) {
                 console.log('[Theme] Failed to load company config (likely not on a tenant subdomain)', error);
