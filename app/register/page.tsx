@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Loader2, Mail, Lock, User as UserIcon, Phone, Building2, ArrowRight } from 'lucide-react';
+import { Loader2, Mail, Lock, User as UserIcon, Phone, Building2, ArrowRight, CheckCircle2, Info } from 'lucide-react';
 import { companyApi, authApi } from '@/lib/api/endpoints';
 import { Company } from '@/lib/types';
 import { toast } from 'sonner';
@@ -29,13 +29,18 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const formSchema = z.object({
     firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
     lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
     email: z.string().email('Email inválido'),
     phone: z.string().min(6, 'Número de teléfono inválido'),
-    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+    password: z.string()
+        .min(8, 'La contraseña debe tener al menos 8 caracteres')
+        .regex(/[a-z]/, 'Debe contener al menos una minúscula')
+        .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
+        .regex(/\d/, 'Debe contener al menos un número'),
     confirmPassword: z.string(),
     companyAreaId: z.string().min(1, 'Debes seleccionar un área'),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -50,6 +55,8 @@ export default function RegisterPage() {
     const [config, setConfig] = useState<PublicConfig | null>(null);
     const [isLoadingConfig, setIsLoadingConfig] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [registeredEmail, setRegisteredEmail] = useState('');
 
     useEffect(() => {
         const fetchConfig = async () => {
@@ -97,7 +104,7 @@ export default function RegisterPage() {
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             setIsSubmitting(true);
-            await authApi.register({
+            const response = await authApi.register({
                 email: values.email,
                 password: values.password,
                 firstName: values.firstName,
@@ -106,8 +113,10 @@ export default function RegisterPage() {
                 companyAreaId: values.companyAreaId,
             });
 
-            toast.success("Cuenta creada exitosamente");
-            router.push('/login');
+            setRegisteredEmail(values.email);
+            setShowSuccessModal(true);
+            const successMessage = (response.data as any).message || "Cuenta creada exitosamente";
+            toast.success(successMessage);
         } catch (error: any) {
             console.error("Registration error:", error);
             const message = error.response?.data?.message || "Error al crear la cuenta";
@@ -300,6 +309,19 @@ export default function RegisterPage() {
                                     />
                                 </div>
 
+                                <Alert className="bg-blue-50 border-blue-200">
+                                    <Info className="h-4 w-4 text-blue-600" />
+                                    <AlertDescription className="text-sm text-blue-800">
+                                        <strong>Requisitos de contraseña:</strong>
+                                        <ul className="list-disc list-inside mt-1 space-y-0.5">
+                                            <li>Mínimo 8 caracteres</li>
+                                            <li>Al menos una mayúscula</li>
+                                            <li>Al menos una minúscula</li>
+                                            <li>Al menos un número</li>
+                                        </ul>
+                                    </AlertDescription>
+                                </Alert>
+
                                 <Button className="w-full" type="submit" disabled={isSubmitting}>
                                     {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     Crear cuenta
@@ -318,6 +340,50 @@ export default function RegisterPage() {
                     </CardFooter>
                 </Card>
             </div>
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <Card className="w-full max-w-md bg-white">
+                        <CardHeader className="text-center">
+                            <div className="flex justify-center mb-4">
+                                <CheckCircle2 className="h-16 w-16 text-green-500" />
+                            </div>
+                            <CardTitle className="text-2xl">¡Cuenta Creada!</CardTitle>
+                            <CardDescription className="text-base mt-2">
+                                Tu cuenta ha sido creada exitosamente
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <Alert className="bg-blue-50 border-blue-200">
+                                <Mail className="h-4 w-4 text-blue-600" />
+                                <AlertDescription className="text-sm text-blue-800">
+                                    Hemos enviado un correo de verificación a <strong>{registeredEmail}</strong>
+                                </AlertDescription>
+                            </Alert>
+                            <div className="text-sm text-gray-600 space-y-2">
+                                <p><strong>Próximos pasos:</strong></p>
+                                <ol className="list-decimal list-inside space-y-1 ml-2">
+                                    <li>Revisa tu bandeja de entrada</li>
+                                    <li>Haz click en el enlace de verificación</li>
+                                    <li>Inicia sesión con tus credenciales</li>
+                                </ol>
+                                <p className="text-xs text-gray-500 mt-3">
+                                    El enlace expirará en 24 horas. Si no recibes el correo, revisa tu carpeta de spam.
+                                </p>
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button
+                                className="w-full"
+                                onClick={() => router.push('/login')}
+                            >
+                                Ir al Login
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 }
