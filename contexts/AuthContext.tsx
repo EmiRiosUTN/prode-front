@@ -79,15 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(true);
             const response = await authApi.register(data);
 
-            const { accessToken, user: userData } = response.data;
-
-            // Store in localStorage
-            localStorage.setItem('accessToken', accessToken);
-            localStorage.setItem('user', JSON.stringify(userData));
-
-            // Update state
-            setToken(accessToken);
-            setUser(userData);
+            // Registration successful (no auto-login due to email verification)
+            // The component will handle the redirect/success message
         } catch (err) {
             const errorMessage = getErrorMessage(err);
             setError(errorMessage);
