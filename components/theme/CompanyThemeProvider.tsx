@@ -1,13 +1,31 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { hexToHsl } from '@/lib/utils';
+import { companyApi } from '@/lib/api/endpoints';
 
 export function CompanyThemeProvider() {
-    const { user } = useAuth();
-    const primaryColor = user?.employee?.company?.primary_color;
-    const secondaryColor = user?.employee?.company?.secondary_color;
+    const [primaryColor, setPrimaryColor] = useState<string | undefined>(undefined);
+    const [secondaryColor, setSecondaryColor] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        const fetchTheme = async () => {
+            try {
+                // Try to get public config based on subdomain
+                const config = await companyApi.getPublicConfig(); // This calls /company/public/config
+                if (config) {
+                    setPrimaryColor(config.primary_color);
+                    setSecondaryColor(config.secondary_color);
+                    console.log(`[Theme] Loaded config for ${config.name}`);
+                }
+            } catch (error) {
+                console.log('[Theme] Failed to load company config (likely not on a tenant subdomain)', error);
+            }
+        };
+
+        fetchTheme();
+    }, []);
 
     useEffect(() => {
         if (primaryColor) {
@@ -31,8 +49,6 @@ export function CompanyThemeProvider() {
                         document.documentElement.style.setProperty('--primary-light', `${h} ${s}% ${lightL}%`);
                     }
                 }
-
-                console.log(`[Theme] Applied company primary color: ${primaryColor} -> ${hsl}`);
             }
         }
 
@@ -58,8 +74,6 @@ export function CompanyThemeProvider() {
                         document.documentElement.style.setProperty('--secondary-light', `${h} ${lightS}% ${lightL}%`);
                     }
                 }
-
-                console.log(`[Theme] Applied company secondary color: ${secondaryColor} -> ${hsl}`);
             }
         }
     }, [primaryColor, secondaryColor]);
