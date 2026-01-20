@@ -259,6 +259,12 @@ export interface AuthResponse {
     user: User;
 }
 
+// Register response (email verification flow)
+export interface RegisterResponse {
+    message: string;
+    email: string;
+}
+
 // Ranking entities
 export interface RankingMetadata {
     prodeId: string;

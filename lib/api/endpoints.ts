@@ -2,6 +2,7 @@ import apiClient from './client';
 import {
     ApiResponse,
     AuthResponse,
+    RegisterResponse,
     User,
     Company,
     Competition,
@@ -46,7 +47,17 @@ export const authApi = {
         if (USE_MOCK) {
             return mockApi.register(data);
         }
-        const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/register', data);
+        const response = await apiClient.post<ApiResponse<RegisterResponse>>('/auth/register', data);
+        return response.data;
+    },
+
+    verifyEmail: async (token: string) => {
+        const response = await apiClient.post<ApiResponse<{ message: string }>>('/auth/verify-email', { token });
+        return response.data;
+    },
+
+    resendVerification: async (email: string) => {
+        const response = await apiClient.post<ApiResponse<{ message: string }>>('/auth/resend-verification', { email });
         return response.data;
     },
 };
