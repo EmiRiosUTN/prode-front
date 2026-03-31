@@ -176,6 +176,8 @@ export interface Prode {
     competitionId: string;
     competition?: Competition;
     is_active: boolean; // Backend uses snake_case
+    participation_mode: 'general' | 'by_area' | 'both';
+    company_area_id?: string;
 
     // Rewards configuration
     winner_count?: number;

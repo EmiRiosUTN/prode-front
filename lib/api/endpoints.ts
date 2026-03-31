@@ -60,6 +60,16 @@ export const authApi = {
         const response = await apiClient.post<ApiResponse<{ message: string }>>('/auth/resend-verification', { email });
         return response.data;
     },
+
+    forgotPassword: async (email: string) => {
+        const response = await apiClient.post<ApiResponse<{ message: string }>>('/auth/forgot-password', { email });
+        return response.data;
+    },
+
+    resetPassword: async (token: string, newPassword: string) => {
+        const response = await apiClient.post<ApiResponse<{ message: string }>>('/auth/reset-password', { token, newPassword });
+        return response.data;
+    },
 };
 
 export interface CreateCompanyRequest {
@@ -74,6 +84,7 @@ export interface CreateCompanyRequest {
     adminPassword: string;
     adminFirstName?: string;
     adminLastName?: string;
+    sendVerificationEmail?: boolean;
 }
 
 export interface UpdateCompanyRequest {
@@ -169,6 +180,50 @@ export const adminCompetitionsApi = {
         return response.data;
     },
 };
+
+export interface ImportCompetitionRequest {
+    apiFootballLeagueId: number;
+    apiFootballSeason: number;
+    competitionName?: string;
+    slug?: string;
+}
+
+export interface ImportCompetitionResponse {
+    competitionId: string;
+    competitionName: string;
+    competitionCreated: boolean;
+    total: number;
+    created: number;
+    skipped: number;
+    resultsImported: number;
+    errors: number;
+    errorDetails: string[];
+}
+
+export interface UpdateResultsResponse {
+    competitions: number;
+    totalUpdated: number;
+    details: any[];
+}
+
+export const apiFootballApi = {
+    importCompetition: async (data: ImportCompetitionRequest) => {
+        const response = await apiClient.post<ApiResponse<ImportCompetitionResponse>>(
+            '/admin/api-football/import-competition',
+            data,
+        );
+        return response.data;
+    },
+    
+    updateResults: async () => {
+        const response = await apiClient.post<ApiResponse<UpdateResultsResponse>>(
+            '/admin/api-football/update-results'
+        );
+        return response.data;
+    }
+};
+
+
 
 // Prediction Variables API
 export const predictionVariablesApi = {
@@ -338,6 +393,18 @@ export const companyApi = {
         name?: string;
         description?: string;
         isActive?: boolean;
+        participationMode?: 'general' | 'by_area' | 'both';
+        showAreaRanking?: boolean;
+        areaRankingCalculation?: 'sum' | 'average';
+        winnerCount?: number;
+        individualPrize?: string;
+        rewardAreaWinner?: boolean;
+        areaPrize?: string;
+        variableConfigs?: Array<{
+            predictionVariableId: string;
+            points: number;
+            isActive?: boolean;
+        }>;
     }) => {
         const response = await apiClient.put<ApiResponse<Prode>>(`/company/prodes/${id}`, data);
         return response.data;

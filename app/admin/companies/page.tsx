@@ -50,6 +50,7 @@ export default function AdminCompaniesPage() {
                 adminPassword: data.adminPassword,
                 adminFirstName: data.adminFirstName,
                 adminLastName: data.adminLastName,
+                sendVerificationEmail: data.sendVerificationEmail,
             });
             await loadCompanies(); // Reload list
         } catch (err) {

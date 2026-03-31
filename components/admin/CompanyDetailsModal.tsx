@@ -15,7 +15,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Edit, Building2, Mail, Globe, Palette } from 'lucide-react';
+import { Loader2, Edit, Building2, Mail, Globe, Palette, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface CompanyDetailsModalProps {
     company: Company | null;
@@ -62,6 +63,30 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
         }
     };
 
+    const handleDelete = async () => {
+        if (!company) return;
+        const actionDescriptor = company.is_active ? "desactivará todo y bloqueará el acceso a sus usuarios (Soft Delete)" : "ELIMINARÁ FÍSICAMENTE de la base de datos la empresa sin posibilidad de recuperarla (Hard Delete)";
+        if (!confirm(`¿Estás seguro de que querés borrar a la empresa "${company.name}"? Esto ${actionDescriptor}.`)) {
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            await adminCompaniesApi.delete(company.id);
+            toast.success('Empresa eliminada correctamente.');
+            setIsEditMode(false);
+            onOpenChange(false);
+            onSuccess();
+        } catch (err) {
+            setError(getErrorMessage(err));
+            toast.error(getErrorMessage(err));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleCancel = () => {
         if (company) {
             setName(company.name);
@@ -80,14 +105,26 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                     <DialogTitle className="flex items-center justify-between">
                         <span>Detalles de la empresa</span>
                         {!isEditMode && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setIsEditMode(true)}
-                            >
-                                <Edit className="h-4 w-4 mr-2" />
-                                Editar
-                            </Button>
+                            <div className="flex space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setIsEditMode(true)}
+                                >
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Editar
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={handleDelete}
+                                    disabled={isLoading}
+                                    title={company.is_active ? "Eliminar (Soft Delete)" : "Eliminar Permanentemente (Hard Delete)"}
+                                >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    {company.is_active ? 'Borrar' : 'Eliminar Definitivamente'}
+                                </Button>
+                            </div>
                         )}
                     </DialogTitle>
                     <DialogDescription>

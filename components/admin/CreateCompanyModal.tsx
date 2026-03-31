@@ -25,6 +25,7 @@ export interface CompanyFormData {
     primaryColor: string;
     secondaryColor: string;
     logoUrl?: string;
+    sendVerificationEmail?: boolean;
 }
 
 export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyModalProps) {
@@ -40,6 +41,7 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
         primaryColor: '#1976d2',
         secondaryColor: '#424242',
         logoUrl: '',
+        sendVerificationEmail: true,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -66,6 +68,7 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
                 primaryColor: '#1976d2',
                 secondaryColor: '#424242',
                 logoUrl: '',
+                sendVerificationEmail: true,
             });
             onClose();
         } catch (err: any) {
@@ -219,6 +222,20 @@ export function CreateCompanyModal({ isOpen, onClose, onSubmit }: CreateCompanyM
                                         minLength={6}
                                         disabled={isSubmitting}
                                     />
+                                </div>
+
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="sendVerificationEmail"
+                                        checked={formData.sendVerificationEmail !== false}
+                                        onChange={(e) => setFormData({ ...formData, sendVerificationEmail: e.target.checked })}
+                                        className="rounded border-input"
+                                        disabled={isSubmitting}
+                                    />
+                                    <Label htmlFor="sendVerificationEmail" className="cursor-pointer font-normal">
+                                        Enviar email de bienvenida y verificación al administrador
+                                    </Label>
                                 </div>
                             </div>
                         </div>

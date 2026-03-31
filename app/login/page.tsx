@@ -10,43 +10,17 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Loader2, Mail, Lock, Building2 } from 'lucide-react';
 import { companyApi } from '@/lib/api/endpoints';
-import { Company } from '@/lib/types';
+import { useCompanyConfig } from '@/contexts/CompanyConfigContext';
 import { toast } from 'sonner';
 
 export default function LoginPage() {
     const router = useRouter();
     const { login, error } = useAuth();
-    const [config, setConfig] = useState<Company | null>(null);
+    const { config } = useCompanyConfig();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [loginError, setLoginError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchConfig = async () => {
-            try {
-                // Skip config fetch for admin subdomain
-                const hostname = window.location.hostname;
-                const subdomain = hostname.split('.')[0];
-
-                if (subdomain === 'admin') {
-                    // Admin subdomain doesn't need company branding
-                    return;
-                }
-
-                // Fetch public config (logo, colors) for branding
-                const response = await companyApi.getPublicConfig();
-                setConfig(response.data);
-                if (response.data.primary_color) {
-                    document.documentElement.style.setProperty('--primary', response.data.primary_color);
-                }
-            } catch (error) {
-                console.error("Error loading company config:", error);
-                // Non-blocking error, user can still login
-            }
-        };
-        fetchConfig();
-    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -153,6 +127,11 @@ export default function LoginPage() {
                                         required
                                         disabled={isLoading}
                                     />
+                                </div>
+                                <div className="text-right mt-1">
+                                    <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                                        ¿Olvidaste tu contraseña?
+                                    </Link>
                                 </div>
                             </div>
 

@@ -1,23 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { adminCompetitionsApi } from '@/lib/api/endpoints';
+import { adminCompetitionsApi, apiFootballApi } from '@/lib/api/endpoints';
 import { Competition } from '@/lib/types';
+import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/api/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Trophy, Loader2, Calendar } from 'lucide-react';
+import { Plus, Trophy, Loader2, Calendar, Download } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { CreateCompetitionModal, type CompetitionFormData } from '@/components/admin/CreateCompetitionModal';
 import { CompetitionDetailsModal } from '@/components/admin/CompetitionDetailsModal';
+import { ImportCompetitionModal } from '@/components/admin/ImportCompetitionModal';
 
 export default function AdminCompetitionsPage() {
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
     const [selectedCompetition, setSelectedCompetition] = useState<Competition | null>(null);
+    const [isUpdatingResults, setIsUpdatingResults] = useState(false);
 
     useEffect(() => {
         loadCompetitions();
@@ -42,6 +46,24 @@ export default function AdminCompetitionsPage() {
             await loadCompetitions(); // Reload list
         } catch (err) {
             throw new Error(getErrorMessage(err));
+        }
+    };
+
+    const handleUpdateResults = async () => {
+        try {
+            setIsUpdatingResults(true);
+            const response = await apiFootballApi.updateResults();
+            if (response.data.totalUpdated > 0) {
+                toast.success(`Se actualizaron ${response.data.totalUpdated} resultados en ${response.data.competitions} competiciones activas.`);
+                await loadCompetitions();
+            } else {
+                toast.info(`No se encontraron resultados nuevos para cargar.`);
+            }
+        } catch (err) {
+            setError(getErrorMessage(err));
+            toast.error(`Error al cargar resultados: ${getErrorMessage(err)}`);
+        } finally {
+            setIsUpdatingResults(false);
         }
     };
 
@@ -71,12 +93,34 @@ export default function AdminCompetitionsPage() {
                         Gestiona las competiciones deportivas
                     </p>
                 </div>
-                <Button
-                    className="bg-slate-500 text-white hover:bg-slate-600"
-                    onClick={() => setIsModalOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva competición
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        variant="secondary"
+                        onClick={handleUpdateResults}
+                        disabled={isUpdatingResults}
+                    >
+                        {isUpdatingResults ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                            <Calendar className="h-4 w-4 mr-2" />
+                        )}
+                        Cargar Resultados
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => setIsImportModalOpen(true)}
+                    >
+                        <Download className="h-4 w-4 mr-2" />
+                        Importar de API-Football
+                    </Button>
+                    <Button
+                        className="bg-slate-500 text-white hover:bg-slate-600"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nueva competición
+                    </Button>
+                </div>
             </div>
 
             {/* Competitions List */}
@@ -156,6 +200,13 @@ export default function AdminCompetitionsPage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleCreateCompetition}
+            />
+
+            {/* Import from API-Football Modal */}
+            <ImportCompetitionModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onSuccess={loadCompetitions}
             />
 
             {/* Competition Details Modal */}
