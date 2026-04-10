@@ -30,13 +30,26 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Form fields (only editable ones)
+    // Form fields
     const [name, setName] = useState('');
+    const [slug, setSlug] = useState('');
+    const [corporateDomain, setCorporateDomain] = useState('');
+    const [requireCorporateEmail, setRequireCorporateEmail] = useState(false);
+    const [logoUrl, setLogoUrl] = useState('');
     const [primaryColor, setPrimaryColor] = useState('');
+    const [secondaryColor, setSecondaryColor] = useState('');
+    const [aiEnabled, setAiEnabled] = useState(true);
+
     useEffect(() => {
         if (company) {
             setName(company.name);
-            setPrimaryColor(company.primary_color || '');
+            setSlug(company.slug);
+            setCorporateDomain(company.corporate_domain || '');
+            setRequireCorporateEmail(company.require_corporate_email || false);
+            setLogoUrl(company.logo_url || '');
+            setPrimaryColor(company.primary_color || '#1976d2');
+            setSecondaryColor(company.secondary_color || '#424242');
+            setAiEnabled(company.ai_enabled ?? true);
             setIsEditMode(false);
             setError(null);
         }
@@ -51,10 +64,17 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
         try {
             await adminCompaniesApi.update(company.id, {
                 name,
-                primaryColor
+                slug,
+                corporateDomain,
+                requireCorporateEmail,
+                logoUrl,
+                primaryColor,
+                secondaryColor,
+                aiEnabled,
             });
 
             setIsEditMode(false);
+            toast.success('Empresa actualizada correctamente');
             onSuccess();
         } catch (err) {
             setError(getErrorMessage(err));
@@ -90,7 +110,13 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
     const handleCancel = () => {
         if (company) {
             setName(company.name);
-            setPrimaryColor(company.primary_color || '');
+            setSlug(company.slug);
+            setCorporateDomain(company.corporate_domain || '');
+            setRequireCorporateEmail(company.require_corporate_email || false);
+            setLogoUrl(company.logo_url || '');
+            setPrimaryColor(company.primary_color || '#1976d2');
+            setSecondaryColor(company.secondary_color || '#424242');
+            setAiEnabled(company.ai_enabled ?? true);
         }
         setIsEditMode(false);
         setError(null);
@@ -151,20 +177,124 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                         )}
                     </div>
 
+                    {/* Slug */}
                     <div className="space-y-2">
-                        <Label className="flex items-center">
-                            <Mail className="h-4 w-4 mr-2" />
-                            Dominio Corporativo
+                        <Label htmlFor="slug" className="flex items-center">
+                            <Globe className="h-4 w-4 mr-2" />
+                            Slug (URL)
                         </Label>
-                        <p className="text-base">{company.corporate_domain || 'No configurado'}</p>
+                        {isEditMode ? (
+                            <Input
+                                id="slug"
+                                value={slug}
+                                onChange={(e) => setSlug(e.target.value)}
+                                disabled={isLoading}
+                                placeholder="ejemplo-empresa"
+                            />
+                        ) : (
+                            <p className="text-base font-mono">{company.slug}</p>
+                        )}
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Domain */}
+                        <div className="space-y-2">
+                            <Label htmlFor="corporateDomain" className="flex items-center">
+                                <Mail className="h-4 w-4 mr-2" />
+                                Dominio Corporativo
+                            </Label>
+                            {isEditMode ? (
+                                <Input
+                                    id="corporateDomain"
+                                    value={corporateDomain}
+                                    onChange={(e) => setCorporateDomain(e.target.value)}
+                                    disabled={isLoading}
+                                    placeholder="empresa.com"
+                                />
+                            ) : (
+                                <p className="text-base">{company.corporate_domain || 'No configurado'}</p>
+                            )}
+                        </div>
+
+                        {/* Require Corporate Email */}
+                        <div className="flex items-center space-x-2 pt-8">
+                            {isEditMode ? (
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        id="requireCorporateEmail"
+                                        checked={requireCorporateEmail}
+                                        onChange={(e) => setRequireCorporateEmail(e.target.checked)}
+                                        disabled={isLoading}
+                                        className="h-4 w-4 rounded border-gray-300 text-slate-900 focus:ring-slate-900"
+                                    />
+                                    <Label htmlFor="requireCorporateEmail" className="cursor-pointer">
+                                        Requerir email corporativo
+                                    </Label>
+                                </div>
+                            ) : (
+                                <div className="flex items-center space-x-2 text-sm">
+                                    <span className={company.require_corporate_email ? "text-green-600" : "text-muted-foreground"}>
+                                        {company.require_corporate_email ? "Email corporativo: Requerido" : "Email corporativo: No requerido"}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* AI Module Toggle */}
+                        <div className="flex items-center space-x-2 pt-8 border-l pl-4">
+                            {isEditMode ? (
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        id="aiEnabled"
+                                        checked={aiEnabled}
+                                        onChange={(e) => setAiEnabled(e.target.checked)}
+                                        disabled={isLoading}
+                                        className="h-4 w-4 rounded border-gray-300 text-slate-900 focus:ring-slate-900"
+                                    />
+                                    <Label htmlFor="aiEnabled" className="cursor-pointer font-bold text-indigo-600">
+                                        Habilitar Módulo IA
+                                    </Label>
+                                </div>
+                            ) : (
+                                <div className="flex items-center space-x-2 text-sm">
+                                    <span className={company.ai_enabled ? "text-indigo-600 font-bold" : "text-muted-foreground"}>
+                                        {company.ai_enabled ? "IA: Habilitada" : "IA: Deshabilitada"}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Logo URL */}
                     <div className="space-y-2">
-                        <Label>URL del Logo</Label>
-                        <p className="text-base">{company.logo_url || 'No configurado'}</p>
+                        <Label htmlFor="logoUrl" className="flex items-center">
+                            <Building2 className="h-4 w-4 mr-2" />
+                            URL del Logo
+                        </Label>
+                        {isEditMode ? (
+                            <Input
+                                id="logoUrl"
+                                value={logoUrl}
+                                onChange={(e) => setLogoUrl(e.target.value)}
+                                disabled={isLoading}
+                                placeholder="https://ejemplo.com/logo.png"
+                            />
+                        ) : (
+                            <div className="flex items-center space-x-4">
+                                {company.logo_url ? (
+                                    <img src={company.logo_url} alt="Logo" className="h-10 object-contain border rounded p-1" />
+                                ) : (
+                                    <p className="text-base text-muted-foreground italic">Sin logo</p>
+                                )}
+                                <span className="text-xs truncate max-w-[300px]">{company.logo_url}</span>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Primary Color */}
                         <div className="space-y-2">
                             <Label htmlFor="primaryColor" className="flex items-center">
                                 <Palette className="h-4 w-4 mr-2" />
@@ -176,12 +306,13 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                                         type="color"
                                         value={primaryColor}
                                         onChange={(e) => setPrimaryColor(e.target.value)}
-                                        className="w-16 h-10"
+                                        className="w-12 h-10 p-1"
                                         disabled={isLoading}
                                     />
                                     <Input
                                         value={primaryColor}
                                         onChange={(e) => setPrimaryColor(e.target.value)}
+                                        className="font-mono"
                                         disabled={isLoading}
                                     />
                                 </div>
@@ -191,7 +322,40 @@ export function CompanyDetailsModal({ company, open, onOpenChange, onSuccess }: 
                                         className="w-8 h-8 rounded border"
                                         style={{ backgroundColor: company.primary_color }}
                                     />
-                                    <span className="text-base">{company.primary_color}</span>
+                                    <span className="font-mono">{company.primary_color}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Secondary Color */}
+                        <div className="space-y-2">
+                            <Label htmlFor="secondaryColor" className="flex items-center">
+                                <Palette className="h-4 w-4 mr-2" />
+                                Color secundario
+                            </Label>
+                            {isEditMode ? (
+                                <div className="flex space-x-2">
+                                    <Input
+                                        type="color"
+                                        value={secondaryColor}
+                                        onChange={(e) => setSecondaryColor(e.target.value)}
+                                        className="w-12 h-10 p-1"
+                                        disabled={isLoading}
+                                    />
+                                    <Input
+                                        value={secondaryColor}
+                                        onChange={(e) => setSecondaryColor(e.target.value)}
+                                        className="font-mono"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="flex items-center space-x-2">
+                                    <div
+                                        className="w-8 h-8 rounded border"
+                                        style={{ backgroundColor: company.secondary_color }}
+                                    />
+                                    <span className="font-mono">{company.secondary_color}</span>
                                 </div>
                             )}
                         </div>

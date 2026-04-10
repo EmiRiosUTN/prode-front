@@ -55,6 +55,7 @@ export interface Company {
     primary_color?: string; // Backend uses snake_case
     secondary_color?: string; // Backend uses snake_case
     is_active: boolean; // Backend uses snake_case
+    ai_enabled: boolean; // Backend uses snake_case
     admin_user_id?: string; // Backend uses snake_case
     admin_user?: User; // Backend uses snake_case
     _count?: {
@@ -90,6 +91,8 @@ export interface Competition {
     end_date: string;   // Backend uses snake_case
     sport_type?: string; // Backend uses snake_case
     is_active: boolean; // Backend uses snake_case
+    api_football_league_id?: number | null;
+    api_football_season?: number | null;
     _count?: {
         matches: number;
         prodes: number;
@@ -188,7 +191,8 @@ export interface Prode {
     prode_variable_configs?: ProdeVariableConfig[]; // Backend uses snake_case
     prode_ranking_config?: ProdeRankingConfig; // Backend uses snake_case
     _count?: {
-        participants: number;
+        participants?: number;
+        prode_participants?: number;
     };
     createdAt: string;
     updatedAt: string;
@@ -214,6 +218,7 @@ export interface Prediction {
     // I will remove the old camelCase ones to force compilation errors and fix them.
     predictedScorer?: string;
     points?: number;
+    pointDetails?: Record<string, number> | null;
     createdAt: string;
     updatedAt: string;
 }

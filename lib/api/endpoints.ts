@@ -85,16 +85,19 @@ export interface CreateCompanyRequest {
     adminFirstName?: string;
     adminLastName?: string;
     sendVerificationEmail?: boolean;
+    aiEnabled?: boolean;
 }
 
 export interface UpdateCompanyRequest {
     name?: string;
+    slug?: string;
     corporateDomain?: string; // Backend actually uses camelCase
     requireCorporateEmail?: boolean; // Backend actually uses camelCase
     logoUrl?: string; // Backend actually uses camelCase
     primaryColor?: string; // Backend actually uses camelCase
     secondaryColor?: string; // Backend actually uses camelCase
     isActive?: boolean; // Backend actually uses camelCase
+    aiEnabled?: boolean;
 }
 
 export const adminCompaniesApi = {
@@ -188,6 +191,12 @@ export interface ImportCompetitionRequest {
     slug?: string;
 }
 
+export interface ImportFixturesRequest {
+    competitionId: string;
+    apiFootballLeagueId: number;
+    apiFootballSeason: number;
+}
+
 export interface ImportCompetitionResponse {
     competitionId: string;
     competitionName: string;
@@ -214,10 +223,19 @@ export const apiFootballApi = {
         );
         return response.data;
     },
+
+    importFixtures: async (data: ImportFixturesRequest) => {
+        const response = await apiClient.post<ApiResponse<any>>(
+            '/admin/api-football/import-fixtures',
+            data,
+        );
+        return response.data;
+    },
     
-    updateResults: async () => {
+    updateResults: async (competitionId?: string) => {
         const response = await apiClient.post<ApiResponse<UpdateResultsResponse>>(
-            '/admin/api-football/update-results'
+            '/admin/api-football/update-results',
+            { competitionId }
         );
         return response.data;
     }

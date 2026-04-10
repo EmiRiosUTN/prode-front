@@ -12,6 +12,27 @@ interface RewardsTabProps {
 }
 
 export function RewardsTab({ winnerCount, individualPrize, rewardAreaWinner, areaPrize }: RewardsTabProps) {
+    const renderPrizeList = (prizeStr?: string) => {
+        if (!prizeStr) return null;
+        try {
+            const parsed = JSON.parse(prizeStr);
+            if (Array.isArray(parsed)) {
+                return (
+                    <ul className="space-y-2 mt-2">
+                        {parsed.map((p, i) => (
+                            <li key={i} className="flex gap-2 text-sm leading-relaxed whitespace-pre-wrap">
+                                <span className="font-bold whitespace-nowrap">{i + 1}º Puesto:</span> {p}
+                            </li>
+                        ))}
+                    </ul>
+                );
+            }
+        } catch {
+            // fallback
+        }
+        return <p className="text-sm leading-relaxed whitespace-pre-wrap mt-2">{prizeStr}</p>;
+    };
+
     const hasRewards = individualPrize || (rewardAreaWinner && areaPrize);
 
     if (!hasRewards) {
@@ -52,11 +73,9 @@ export function RewardsTab({ winnerCount, individualPrize, rewardAreaWinner, are
                                     <Badge variant="secondary" className="text-xs bg-red-200 text-red-500">
                                         Top {winnerCount}
                                     </Badge>
-                                    <span className="text-xs text-muted-foreground">recibirá:</span>
+                                    <span className="text-xs text-muted-foreground">recibirá(n):</span>
                                 </div>
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                    {individualPrize}
-                                </p>
+                                {renderPrizeList(individualPrize)}
                             </div>
                         </div>
                     </CardContent>
@@ -85,13 +104,11 @@ export function RewardsTab({ winnerCount, individualPrize, rewardAreaWinner, are
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
-                                        Área #1
+                                        Área(s) Ganadora(s)
                                     </Badge>
-                                    <span className="text-xs text-muted-foreground">recibirá:</span>
+                                    <span className="text-xs text-muted-foreground">recibirá(n):</span>
                                 </div>
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                    {areaPrize}
-                                </p>
+                                {renderPrizeList(areaPrize)}
                             </div>
                         </div>
                     </CardContent>

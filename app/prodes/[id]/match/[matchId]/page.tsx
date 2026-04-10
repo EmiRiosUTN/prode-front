@@ -163,17 +163,19 @@ export default function MatchPredictionPage() {
                 </div>
 
                 {/* AI Analysis Section */}
-                <div className="mb-6">
-                    <MatchAIAnalysis
-                        matchId={matchId}
-                        teamAName={match.team_a?.name || 'Equipo A'}
-                        teamBName={match.team_b?.name || 'Equipo B'}
-                        teamAFlagUrl={match.team_a?.flag_url}
-                        teamBFlagUrl={match.team_b?.flag_url}
-                        teamACode={match.team_a?.code}
-                        teamBCode={match.team_b?.code}
-                    />
-                </div>
+                {prode.company?.ai_enabled !== false && (
+                    <div className="mb-6">
+                        <MatchAIAnalysis
+                            matchId={matchId}
+                            teamAName={match.team_a?.name || 'Equipo A'}
+                            teamBName={match.team_b?.name || 'Equipo B'}
+                            teamAFlagUrl={match.team_a?.flag_url}
+                            teamBFlagUrl={match.team_b?.flag_url}
+                            teamACode={match.team_a?.code}
+                            teamBCode={match.team_b?.code}
+                        />
+                    </div>
+                )}
 
                 <PredictionForm
                     prodeId={prodeId}

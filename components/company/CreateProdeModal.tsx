@@ -45,10 +45,9 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
     const [areaRankingCalculation, setAreaRankingCalculation] = useState<'sum' | 'average'>('average');
 
     // Rewards configuration states
-    const [winnerCount, setWinnerCount] = useState<number>(1);
-    const [individualPrize, setIndividualPrize] = useState('');
+    const [individualPrizes, setIndividualPrizes] = useState<string[]>(['']);
     const [rewardAreaWinner, setRewardAreaWinner] = useState(false);
-    const [areaPrize, setAreaPrize] = useState('');
+    const [areaPrizes, setAreaPrizes] = useState<string[]>(['']);
 
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [areas, setAreas] = useState<CompanyArea[]>([]);
@@ -74,7 +73,8 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
         try {
             setIsLoadingCompetitions(true);
             const response = await adminCompetitionsApi.getAllPublic();
-            setCompetitions(response.data);
+            const activeCompetitions = response.data.filter((c: any) => c.is_active || c.isActive);
+            setCompetitions(activeCompetitions);
         } catch (err) {
             console.error('Error loading competitions:', err);
         } finally {
@@ -102,11 +102,11 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
             const data = (response as any).data;
 
             if (Array.isArray(response.data)) {
-                setPredictionVariables(response.data);
+                setPredictionVariables(response.data.filter((v: any) => v.code !== 'scorers' && v.code !== 'goal_difference' && v.code !== 'goleador'));
             } else if (data && Array.isArray(data.data)) {
-                setPredictionVariables(data.data);
+                setPredictionVariables(data.data.filter((v: any) => v.code !== 'scorers' && v.code !== 'goal_difference' && v.code !== 'goleador'));
             } else if (data && Array.isArray(data)) {
-                setPredictionVariables(data);
+                setPredictionVariables(data.filter((v: any) => v.code !== 'scorers' && v.code !== 'goal_difference' && v.code !== 'goleador'));
             } else {
                 console.log('Unexpected response structure:', response);
                 setPredictionVariables([]);
@@ -186,10 +186,10 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                 companyAreaId: participationMode === 'by_area' && companyAreaId ? companyAreaId : undefined,
                 showAreaRanking: enableAreaRanking,
                 areaRankingCalculation: enableAreaRanking ? areaRankingCalculation : undefined,
-                winnerCount,
-                individualPrize: individualPrize || undefined,
+                winnerCount: individualPrizes.filter(p => p.trim() !== '').length > 0 ? individualPrizes.filter(p => p.trim() !== '').length : 1,
+                individualPrize: individualPrizes.filter(p => p.trim() !== '').length > 0 ? JSON.stringify(individualPrizes.filter(p => p.trim() !== '')) : undefined,
                 rewardAreaWinner,
-                areaPrize: areaPrize || undefined,
+                areaPrize: rewardAreaWinner && areaPrizes.filter(p => p.trim() !== '').length > 0 ? JSON.stringify(areaPrizes.filter(p => p.trim() !== '')) : undefined,
                 variableConfigs,
             });
 
@@ -201,10 +201,9 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
             setCompanyAreaId('');
             setEnableAreaRanking(false);
             setAreaRankingCalculation('average');
-            setWinnerCount(1);
-            setIndividualPrize('');
+            setIndividualPrizes(['']);
             setRewardAreaWinner(false);
-            setAreaPrize('');
+            setAreaPrizes(['']);
             setSelectedVariables(new Map());
             setStep(1);
 
@@ -386,75 +385,74 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                                 {/* Rewards Configuration Section */}
                                 <div className="space-y-4 pt-4 border-t">
                                     <div>
-                                        <h3 className="text-sm font-semibold mb-2">Configuración de Premios</h3>
-                                        <p className="text-xs text-muted-foreground mb-3">
-                                            Define los premios para los ganadores del prode
-                                        </p>
+                                        <h3 className="text-sm font-semibold mb-2">Configuración de Premios Individuales</h3>
+                                        <p className="text-xs text-muted-foreground mb-3">Agrega tantos premios como desees (Top 1, Top 2, etc.)</p>
                                     </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="winnerCount">Cantidad de Ganadores</Label>
-                                        <Select
-                                            value={winnerCount.toString()}
-                                            onValueChange={(value) => setWinnerCount(parseInt(value))}
-                                            disabled={isLoading}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="1">Top 1 (Solo el primero)</SelectItem>
-                                                <SelectItem value="3">Top 3 (Los 3 primeros)</SelectItem>
-                                                <SelectItem value="5">Top 5 (Los 5 primeros)</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="individualPrize">Premio Individual (Opcional)</Label>
-                                        <Textarea
-                                            id="individualPrize"
-                                            placeholder="Ej: $50,000 en premios, Gift card de $100, etc."
-                                            value={individualPrize}
-                                            onChange={(e) => setIndividualPrize(e.target.value)}
-                                            disabled={isLoading}
-                                            rows={2}
-                                        />
+                                    <div className="space-y-3">
+                                        {individualPrizes.map((prize, idx) => (
+                                            <div key={idx} className="flex flex-col gap-1">
+                                                <Label className="text-xs text-muted-foreground">Premio #{idx + 1}</Label>
+                                                <div className="flex items-center gap-2">
+                                                    <Input
+                                                        placeholder={"Ej: Giftcard de $10.000"}
+                                                        value={prize}
+                                                        onChange={(e) => {
+                                                            const newPrizes = [...individualPrizes];
+                                                            newPrizes[idx] = e.target.value;
+                                                            setIndividualPrizes(newPrizes);
+                                                        }}
+                                                        disabled={isLoading}
+                                                    />
+                                                    {individualPrizes.length > 1 && (
+                                                        <Button type="button" variant="outline" size="sm" onClick={() => setIndividualPrizes(individualPrizes.filter((_, i) => i !== idx))} className="text-destructive border-destructive px-2">
+                                                            X
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <Button type="button" variant="secondary" size="sm" onClick={() => setIndividualPrizes([...individualPrizes, ''])} disabled={isLoading}>
+                                            + Agregar otro premio
+                                        </Button>
                                     </div>
 
                                     {enableAreaRanking && (
                                         <>
-                                            <div className="flex items-start space-x-2">
-                                                <Checkbox
-                                                    id="rewardAreaWinner"
-                                                    checked={rewardAreaWinner}
-                                                    onCheckedChange={(checked) => setRewardAreaWinner(checked as boolean)}
-                                                    disabled={isLoading}
-                                                />
+                                            <div className="pt-4 mt-2 border-t flex items-start space-x-2">
+                                                <Checkbox id="rewardAreaWinner" checked={rewardAreaWinner} onCheckedChange={(checked) => setRewardAreaWinner(checked as boolean)} disabled={isLoading} />
                                                 <div className="grid gap-1.5 leading-none">
-                                                    <Label
-                                                        htmlFor="rewardAreaWinner"
-                                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                                                    >
-                                                        Premiar al Área Ganadora
-                                                    </Label>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        Otorga un premio adicional al área con mejor desempeño
-                                                    </p>
+                                                    <Label htmlFor="rewardAreaWinner" className="text-sm font-medium leading-none cursor-pointer">Premiar al Área Ganadora</Label>
+                                                    <p className="text-xs text-muted-foreground">Otorga premios al área con mejor desempeño</p>
                                                 </div>
                                             </div>
 
                                             {rewardAreaWinner && (
-                                                <div className="space-y-2 pl-6">
-                                                    <Label htmlFor="areaPrize">Premio para Área Ganadora</Label>
-                                                    <Textarea
-                                                        id="areaPrize"
-                                                        placeholder="Ej: Almuerzo grupal, Día libre para el equipo, etc."
-                                                        value={areaPrize}
-                                                        onChange={(e) => setAreaPrize(e.target.value)}
-                                                        disabled={isLoading}
-                                                        rows={2}
-                                                    />
+                                                <div className="space-y-3 pl-6 mt-3">
+                                                    {areaPrizes.map((prize, idx) => (
+                                                        <div key={idx} className="flex flex-col gap-1">
+                                                            <Label className="text-xs text-muted-foreground">Premio para Área #{idx + 1}</Label>
+                                                            <div className="flex items-center gap-2">
+                                                                <Input
+                                                                    placeholder={"Ej: Almuerzo grupal"}
+                                                                    value={prize}
+                                                                    onChange={(e) => {
+                                                                        const newPrizes = [...areaPrizes];
+                                                                        newPrizes[idx] = e.target.value;
+                                                                        setAreaPrizes(newPrizes);
+                                                                    }}
+                                                                    disabled={isLoading}
+                                                                />
+                                                                {areaPrizes.length > 1 && (
+                                                                    <Button type="button" variant="outline" size="sm" onClick={() => setAreaPrizes(areaPrizes.filter((_, i) => i !== idx))} className="text-destructive border-destructive px-2">
+                                                                        X
+                                                                    </Button>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                    <Button type="button" variant="secondary" size="sm" onClick={() => setAreaPrizes([...areaPrizes, ''])} disabled={isLoading}>
+                                                        + Agregar premio de área
+                                                    </Button>
                                                 </div>
                                             )}
                                         </>

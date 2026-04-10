@@ -156,7 +156,7 @@ export default function CompanyProdesPage() {
 
                                     <div className="flex items-center text-sm text-muted-foreground">
                                         <Users className="h-4 w-4 mr-2" />
-                                        {prode._count?.participants || 0} participantes
+                                        {prode._count?.prode_participants || prode._count?.participants || 0} participantes
                                     </div>
 
                                     <div className="flex items-center justify-between">
@@ -218,11 +218,16 @@ export default function CompanyProdesPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Esta acción eliminará el prode "{prodeToDelete?.name}".
-                            {prodeToDelete?._count?.participants && prodeToDelete._count.participants > 0 && (
-                                <span className="block mt-2 text-destructive font-medium">
-                                    Este prode tiene {prodeToDelete._count.participants} participante(s).
+                            Esta acción eliminará de forma <strong>PERMANENTE</strong> el prode "{prodeToDelete?.name}".
+                            {(prodeToDelete?._count?.prode_participants || prodeToDelete?._count?.participants || 0) > 0 ? (
+                                <span className="block mt-4 p-3 bg-red-100 border border-red-200 rounded-md text-red-800 font-medium">
+                                    <span className="font-bold block mb-1">⚠️ ADVERTENCIA CRÍTICA:</span>
+                                    Este prode tiene {prodeToDelete?._count?.prode_participants || prodeToDelete?._count?.participants || 0} participante(s). 
+                                    Al eliminarlo, se borrarán todos sus pronósticos, puntos y rankings asociados. 
+                                    <strong> Esta acción no se puede deshacer.</strong>
                                 </span>
+                            ) : (
+                                " Esta acción no se puede deshacer."
                             )}
                         </AlertDialogDescription>
                     </AlertDialogHeader>

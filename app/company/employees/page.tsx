@@ -61,7 +61,8 @@ export default function CompanyEmployeesPage() {
             setError(null);
             const areaId = selectedArea === 'all' ? undefined : selectedArea;
             const response = await companyApi.getEmployees(areaId);
-            setEmployees(response.data);
+            const filteredEmployees = response.data.filter((emp: Employee) => emp.user?.role !== 'empresa_admin');
+            setEmployees(filteredEmployees);
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {

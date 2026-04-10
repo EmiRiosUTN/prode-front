@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { adminCompetitionsApi } from '@/lib/api/endpoints';
+import { adminCompetitionsApi, apiFootballApi } from '@/lib/api/endpoints';
 import { Competition } from '@/lib/types';
 import { getErrorMessage } from '@/lib/api/client';
+import { toast } from 'sonner';
 import {
     Dialog,
     DialogContent,
@@ -16,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Edit, Trophy, Calendar } from 'lucide-react';
+import { Loader2, Edit, Trophy, Calendar, RefreshCw } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 interface CompetitionDetailsModalProps {
@@ -29,6 +30,7 @@ interface CompetitionDetailsModalProps {
 export function CompetitionDetailsModal({ competition, open, onOpenChange, onSuccess }: CompetitionDetailsModalProps) {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Form fields
@@ -74,6 +76,31 @@ export function CompetitionDetailsModal({ competition, open, onOpenChange, onSuc
             setError(getErrorMessage(err));
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleSyncFixtures = async () => {
+        if (!competition || !competition.api_football_league_id || !competition.api_football_season) return;
+
+        setIsSyncing(true);
+        setError(null);
+
+        try {
+            const importRes = await apiFootballApi.importFixtures({
+                competitionId: competition.id,
+                apiFootballLeagueId: competition.api_football_league_id,
+                apiFootballSeason: competition.api_football_season,
+            });
+            const updateRes = await apiFootballApi.updateResults(competition.id);
+
+            toast.success(`Sincronización completada: ${importRes.data.created} nuevos partidos, ${updateRes.data.totalUpdated} resultados actualizados.`);
+            onSuccess();
+        } catch (err) {
+            const msg = getErrorMessage(err);
+            setError(msg);
+            toast.error(`Error al sincronizar: ${msg}`);
+        } finally {
+            setIsSyncing(false);
         }
     };
 
@@ -234,7 +261,25 @@ export function CompetitionDetailsModal({ competition, open, onOpenChange, onSuc
                     {/* Stats */}
                     {!isEditMode && (
                         <div className="pt-4 border-t">
-                            <h4 className="font-semibold mb-2">Estadísticas</h4>
+                            <div className="flex items-center justify-between mb-2">
+                                <h4 className="font-semibold">Estadísticas</h4>
+                                {competition.api_football_league_id && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-7 text-[10px] px-2 bg-slate-50"
+                                        onClick={handleSyncFixtures}
+                                        disabled={isSyncing}
+                                    >
+                                        {isSyncing ? (
+                                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                        ) : (
+                                            <RefreshCw className="h-3 w-3 mr-1" />
+                                        )}
+                                        Sincronizar Partidos
+                                    </Button>
+                                )}
+                            </div>
                             <div className="grid grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <span className="text-muted-foreground">Partidos:</span>{' '}
