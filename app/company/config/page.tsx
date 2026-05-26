@@ -47,7 +47,6 @@ export default function CompanyConfigPage() {
                 logoUrl: config.logo_url,
                 primaryColor: config.primary_color,
                 secondaryColor: config.secondary_color,
-                aiEnabled: config.ai_enabled,
             });
 
             setSuccess(true);
@@ -184,30 +183,6 @@ export default function CompanyConfigPage() {
                             </div>
                         </div>
 
-                        {/* AI Module Settings */}
-                        <div className="pt-6 border-t">
-                            <div className="flex items-center justify-between">
-                                <div className="space-y-0.5">
-                                    <Label className="text-base font-bold text-indigo-600">Inteligencia Artificial</Label>
-                                    <p className="text-sm text-muted-foreground">
-                                        Habilita o deshabilita el análisis predictivo de IA para todos los empleados.
-                                    </p>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <input
-                                        type="checkbox"
-                                        id="aiEnabled"
-                                        checked={config.ai_enabled}
-                                        onChange={(e) => setConfig({ ...config, ai_enabled: e.target.checked })}
-                                        disabled={isSaving}
-                                        className="h-6 w-11 rounded-full border-gray-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
-                                    />
-                                    <Label htmlFor="aiEnabled" className="font-semibold px-2 py-1 rounded bg-indigo-50 text-indigo-700">
-                                        {config.ai_enabled ? 'Habilitado' : 'Deshabilitado'}
-                                    </Label>
-                                </div>
-                            </div>
-                        </div>
 
                         {/* Save Button */}
                         <div className="flex justify-end pt-4">

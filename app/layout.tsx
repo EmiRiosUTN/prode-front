@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prode - Pronósticos Deportivos",
+  title: "Prodemax",
   description: "Plataforma de pronósticos deportivos para empresas",
 };
 

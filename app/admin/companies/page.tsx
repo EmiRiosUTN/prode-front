@@ -51,6 +51,8 @@ export default function AdminCompaniesPage() {
                 adminFirstName: data.adminFirstName,
                 adminLastName: data.adminLastName,
                 sendVerificationEmail: data.sendVerificationEmail,
+                aiEnabled: data.aiEnabled,
+                registrationFields: data.registrationFields,
             });
             await loadCompanies(); // Reload list
         } catch (err) {

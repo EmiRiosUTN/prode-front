@@ -31,7 +31,8 @@ export interface RegisterRequest {
     firstName: string;
     lastName: string;
     phone?: string;
-    companyAreaId: string;
+    companyAreaId?: string;
+    extraData?: Record<string, string>;
 }
 
 export const authApi = {
@@ -86,6 +87,7 @@ export interface CreateCompanyRequest {
     adminLastName?: string;
     sendVerificationEmail?: boolean;
     aiEnabled?: boolean;
+    registrationFields?: import('@/lib/types').RegistrationFieldConfig[];
 }
 
 export interface UpdateCompanyRequest {
@@ -93,11 +95,13 @@ export interface UpdateCompanyRequest {
     slug?: string;
     corporateDomain?: string; // Backend actually uses camelCase
     requireCorporateEmail?: boolean; // Backend actually uses camelCase
+    requireEmailConfirmation?: boolean;
     logoUrl?: string; // Backend actually uses camelCase
     primaryColor?: string; // Backend actually uses camelCase
     secondaryColor?: string; // Backend actually uses camelCase
     isActive?: boolean; // Backend actually uses camelCase
     aiEnabled?: boolean;
+    registrationFields?: import('@/lib/types').RegistrationFieldConfig[];
 }
 
 export const adminCompaniesApi = {

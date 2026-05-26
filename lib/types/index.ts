@@ -7,6 +7,24 @@ export type MatchStatus = 'scheduled' | 'in_progress' | 'finished' | 'cancelled'
 // Sport types
 export type SportType = 'futbol' | 'basketball' | 'rugby';
 
+// Registration field configuration for custom company registration forms
+export interface RegistrationFieldConfig {
+    key: string;
+    label: string;
+    visible: boolean;
+    required: boolean;
+    isCustom: boolean;
+}
+
+// Default registration fields (used when company has no custom config)
+export const DEFAULT_REGISTRATION_FIELDS: RegistrationFieldConfig[] = [
+    { key: 'firstName',     label: 'Nombre',              visible: true,  required: true,  isCustom: false },
+    { key: 'lastName',      label: 'Apellido',            visible: true,  required: true,  isCustom: false },
+    { key: 'email',         label: 'Email Corporativo',   visible: true,  required: true,  isCustom: false },
+    { key: 'phone',         label: 'Teléfono',            visible: true,  required: true,  isCustom: false },
+    { key: 'companyAreaId', label: 'Área / Departamento',  visible: true,  required: true,  isCustom: false },
+];
+
 // Prediction variable types
 export interface ProdeVariableConfig {
     id: string;
@@ -51,11 +69,13 @@ export interface Company {
     slug: string;
     corporate_domain?: string; // Backend uses snake_case
     require_corporate_email: boolean; // Backend uses snake_case
+    require_email_confirmation: boolean;
     logo_url?: string; // Backend uses snake_case
     primary_color?: string; // Backend uses snake_case
     secondary_color?: string; // Backend uses snake_case
     is_active: boolean; // Backend uses snake_case
     ai_enabled: boolean; // Backend uses snake_case
+    registration_fields?: RegistrationFieldConfig[] | null; // Custom registration form config
     admin_user_id?: string; // Backend uses snake_case
     admin_user?: User; // Backend uses snake_case
     _count?: {
