@@ -35,6 +35,11 @@ export interface RegisterRequest {
     extraData?: Record<string, string>;
 }
 
+export interface ChangePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+}
+
 export const authApi = {
     login: async (data: LoginRequest) => {
         if (USE_MOCK) {
@@ -69,6 +74,11 @@ export const authApi = {
 
     resetPassword: async (token: string, newPassword: string) => {
         const response = await apiClient.post<ApiResponse<{ message: string }>>('/auth/reset-password', { token, newPassword });
+        return response.data;
+    },
+
+    changePassword: async (data: ChangePasswordRequest) => {
+        const response = await apiClient.post<ApiResponse<{ message: string }>>('/auth/change-password', data);
         return response.data;
     },
 };

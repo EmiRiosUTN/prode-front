@@ -10,6 +10,7 @@ import { Loader2, Mail, Lock, Phone, Building2, ArrowRight, CheckCircle2, Info }
 import { companyApi, authApi } from '@/lib/api/endpoints';
 import { Company, RegistrationFieldConfig, DEFAULT_REGISTRATION_FIELDS } from '@/lib/types';
 import { toast } from 'sonner';
+import { PasswordRequirementsAlert } from '@/components/auth/PasswordRequirementsAlert';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -232,7 +233,7 @@ export default function RegisterPage() {
                 <div className="absolute inset-0 bg-black/10" />
                 <div className="relative z-10 text-white text-center max-w-lg">
                     {config.logo_url ? (
-                        <img src={config.logo_url} alt={config.name} className="h-24 mx-auto mb-8 object-contain" />
+                        <img src={config.logo_url} alt={config.name} className="h-36 mx-auto mb-8 object-contain" />
                     ) : (
                         <Building2 className="h-24 w-24 mx-auto mb-8 opacity-90" />
                     )}
@@ -433,6 +434,7 @@ export default function RegisterPage() {
                                             <li>Al menos una mayúscula</li>
                                             <li>Al menos una minúscula</li>
                                             <li>Al menos un número</li>
+                                            <li>Al menos un caracter especial</li>
                                         </ul>
                                     </AlertDescription>
                                 </Alert>

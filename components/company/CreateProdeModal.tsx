@@ -32,6 +32,19 @@ interface CreateProdeModalProps {
     onSuccess: () => void;
 }
 
+const shouldHidePredictionVariable = (variable: any) => {
+    const code = String(variable?.code || '').toLowerCase();
+    const name = String(variable?.name || '').toLowerCase();
+    const description = String(variable?.description || '').toLowerCase();
+
+    return (
+        ['scorers', 'goleador', 'goleadores', 'goal_scorer', 'goal_scorers'].includes(code) ||
+        name.includes('goleador') ||
+        description.includes('acertar jugador') ||
+        description.includes('goleador')
+    );
+};
+
 export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeModalProps) {
     const [step, setStep] = useState(1);
     const [name, setName] = useState('');
@@ -102,11 +115,11 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
             const data = (response as any).data;
 
             if (Array.isArray(response.data)) {
-                setPredictionVariables(response.data.filter((v: any) => v.code !== 'scorers' && v.code !== 'goal_difference' && v.code !== 'goleador'));
+                setPredictionVariables(response.data.filter((v: any) => !shouldHidePredictionVariable(v) && v.code !== 'goal_difference'));
             } else if (data && Array.isArray(data.data)) {
-                setPredictionVariables(data.data.filter((v: any) => v.code !== 'scorers' && v.code !== 'goal_difference' && v.code !== 'goleador'));
+                setPredictionVariables(data.data.filter((v: any) => !shouldHidePredictionVariable(v) && v.code !== 'goal_difference'));
             } else if (data && Array.isArray(data)) {
-                setPredictionVariables(data.filter((v: any) => v.code !== 'scorers' && v.code !== 'goal_difference' && v.code !== 'goleador'));
+                setPredictionVariables(data.filter((v: any) => !shouldHidePredictionVariable(v) && v.code !== 'goal_difference'));
             } else {
                 console.log('Unexpected response structure:', response);
                 setPredictionVariables([]);
@@ -469,7 +482,9 @@ export function CreateProdeModal({ open, onOpenChange, onSuccess }: CreateProdeM
                                     </div>
                                 ) : (
                                     <div className="space-y-2 max-h-[400px] overflow-y-auto border rounded-md p-3">
-                                        {Array.isArray(predictionVariables) && predictionVariables.map((variable) => (
+                                        {Array.isArray(predictionVariables) && predictionVariables
+                                            .filter((variable) => !shouldHidePredictionVariable(variable))
+                                            .map((variable) => (
                                             <div key={variable.id} className="flex items-start space-x-3 p-2 hover:bg-accent rounded-md">
                                                 <Checkbox
                                                     id={variable.id}

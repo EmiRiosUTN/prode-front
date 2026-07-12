@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,9 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Loader2, Mail, Lock, Building2 } from 'lucide-react';
-import { companyApi } from '@/lib/api/endpoints';
 import { useCompanyConfig } from '@/contexts/CompanyConfigContext';
-import { toast } from 'sonner';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -21,6 +19,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [loginError, setLoginError] = useState<string | null>(null);
+    const showRegisterCta = config?.slug !== 'grupoitalgas';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -64,7 +63,7 @@ export default function LoginPage() {
                 <div className="absolute inset-0 bg-black/10" />
                 <div className="relative z-10 text-white text-center max-w-lg">
                     {config?.logo_url ? (
-                        <img src={config.logo_url} alt={config.name} className="h-24 mx-auto mb-8 object-contain" />
+                        <img src={config.logo_url} alt={config.name} className="h-36 mx-auto mb-8 object-contain" />
                     ) : (
                         <Building2 className="h-24 w-24 mx-auto mb-8 opacity-90" />
                     )}
@@ -154,12 +153,14 @@ export default function LoginPage() {
                         </form>
                     </CardContent>
                     <CardFooter className="flex justify-center flex-col space-y-2">
-                        <p className="text-sm text-muted-foreground">
-                            ¿No tienes cuenta?{' '}
-                            <Link href="/register" className="text-primary hover:underline font-medium">
-                                Regístrate aquí
-                            </Link>
-                        </p>
+                        {showRegisterCta && (
+                            <p className="text-sm text-muted-foreground">
+                                ¿No tienes cuenta?{' '}
+                                <Link href="/register" className="text-primary hover:underline font-medium">
+                                    Regístrate aquí
+                                </Link>
+                            </p>
+                        )}
                     </CardFooter>
                 </Card>
             </div>

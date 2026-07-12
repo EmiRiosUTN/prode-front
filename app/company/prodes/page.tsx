@@ -6,7 +6,7 @@ import { Prode } from '@/lib/types';
 import { getErrorMessage } from '@/lib/api/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trophy, Plus, Calendar, Users, Edit, Trash2 } from 'lucide-react';
+import { Loader2, Trophy, Plus, Calendar, Users, Edit, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { CreateProdeModal } from '@/components/company/CreateProdeModal';
 import { EditProdeModal } from '@/components/company/EditProdeModal';
 import {
@@ -29,6 +29,7 @@ export default function CompanyProdesPage() {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [prodeToDelete, setProdeToDelete] = useState<Prode | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         loadProdes();
@@ -66,6 +67,48 @@ export default function CompanyProdesPage() {
         } finally {
             setIsDeleting(false);
         }
+    };
+
+    const toggleDescription = (prodeId: string) => {
+        setExpandedDescriptions((current) => ({
+            ...current,
+            [prodeId]: !current[prodeId],
+        }));
+    };
+
+    const renderDescription = (prode: Prode) => {
+        if (!prode.description) {
+            return null;
+        }
+
+        const isExpanded = !!expandedDescriptions[prode.id];
+
+        return (
+            <div className="mt-1 space-y-2">
+                <CardDescription
+                    className={`max-w-full overflow-hidden text-sm break-all ${isExpanded ? 'whitespace-pre-wrap' : 'line-clamp-2'}`}
+                >
+                    {prode.description}
+                </CardDescription>
+                <button
+                    type="button"
+                    onClick={() => toggleDescription(prode.id)}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary underline-offset-4 hover:underline"
+                >
+                    {isExpanded ? (
+                        <>
+                            Ver menos
+                            <ChevronUp className="h-3.5 w-3.5" />
+                        </>
+                    ) : (
+                        <>
+                            Ver descripción completa
+                            <ChevronDown className="h-3.5 w-3.5" />
+                        </>
+                    )}
+                </button>
+            </div>
+        );
     };
 
     if (isLoading) {
@@ -122,13 +165,9 @@ export default function CompanyProdesPage() {
                         <Card key={prode.id} className="hover:shadow-lg transition-shadow">
                             <CardHeader>
                                 <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <CardTitle className="text-lg">{prode.name}</CardTitle>
-                                        {prode.description && (
-                                            <CardDescription className="mt-1">
-                                                {prode.description}
-                                            </CardDescription>
-                                        )}
+                                    <div className="flex-1 min-w-0 overflow-hidden">
+                                        <CardTitle className="text-lg break-words [overflow-wrap:anywhere]">{prode.name}</CardTitle>
+                                        {renderDescription(prode)}
                                     </div>
                                     <Trophy className="h-8 w-8 text-primary" />
                                 </div>

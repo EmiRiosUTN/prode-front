@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Building2, CheckCircle2, Info, Loader2, Lock } from 'lucide-react';
+import { authApi } from '@/lib/api/endpoints';
+import { getPasswordValidationMessage } from '@/lib/auth/password-rules';
+import { useCompanyConfig } from '@/contexts/CompanyConfigContext';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Loader2, Lock, Building2, CheckCircle2 } from 'lucide-react';
-import { authApi } from '@/lib/api/endpoints';
-import { useCompanyConfig } from '@/contexts/CompanyConfigContext';
-import { Suspense } from 'react';
 
 function ResetPasswordForm() {
     const { config } = useCompanyConfig();
@@ -27,36 +28,36 @@ function ResetPasswordForm() {
         const tokenParam = searchParams.get('token');
         if (tokenParam) {
             setToken(tokenParam);
-        } else {
-            setError("Link inválido o expirado. Asegúrate de haber ingresado desde el correo de recuperación.");
+            return;
         }
+
+        setError('Link invalido o expirado. Asegurate de ingresar desde el correo de recuperacion.');
     }, [searchParams]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
         setError(null);
 
         if (!token) {
-            setError("El token de seguridad es inválido.");
+            setError('El token de seguridad es invalido.');
+            return;
+        }
+
+        const passwordError = getPasswordValidationMessage(newPassword);
+        if (passwordError) {
+            setError(passwordError);
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setError("Las contraseñas no coinciden.");
+            setError('Las contraseñas no coinciden.');
             return;
         }
-
-        if (newPassword.length < 6) {
-            setError("La contraseña debe tener al menos 6 caracteres.");
-            return;
-        }
-
-        setIsLoading(true);
 
         try {
-            const res = await authApi.resetPassword(token, newPassword);
-            setSuccessMessage(res.data.message);
-            // Redirige después de 3 segundos
+            setIsLoading(true);
+            const response = await authApi.resetPassword(token, newPassword);
+            setSuccessMessage(response.data.message);
             setTimeout(() => {
                 router.push('/login');
             }, 3000);
@@ -68,18 +69,18 @@ function ResetPasswordForm() {
     };
 
     return (
-        <Card className="w-full max-w-md shadow-sm border-gray-200">
+        <Card className="w-full max-w-md border-gray-200 shadow-sm">
             <CardHeader className="space-y-1">
-                <div className="flex justify-center mb-6">
+                <div className="mb-6 flex justify-center">
                     {config?.logo_url ? (
                         <img src={config.logo_url} alt={config.name} className="h-16 object-contain" />
                     ) : (
-                        <div className="h-16 w-16 bg-primary rounded-xl flex items-center justify-center shadow-lg">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary shadow-lg">
                             <Building2 className="h-8 w-8 text-white" />
                         </div>
                     )}
                 </div>
-                <CardTitle className="text-2xl font-bold text-center">Nueva Contraseña</CardTitle>
+                <CardTitle className="text-center text-2xl font-bold">Nueva contraseña</CardTitle>
                 <CardDescription className="text-center">
                     Crea una nueva contraseña segura
                 </CardDescription>
@@ -87,12 +88,12 @@ function ResetPasswordForm() {
 
             <CardContent>
                 {successMessage ? (
-                    <div className="flex flex-col items-center justify-center text-center space-y-4 py-4">
+                    <div className="flex flex-col items-center justify-center space-y-4 py-4 text-center">
                         <CheckCircle2 className="h-16 w-16 text-green-500" />
-                        <p className="text-gray-700 font-medium">{successMessage}</p>
-                        <p className="text-sm text-gray-500">Serás redirigido al login en unos segundos...</p>
+                        <p className="font-medium text-gray-700">{successMessage}</p>
+                        <p className="text-sm text-gray-500">Seras redirigido al login en unos segundos...</p>
                         <Link href="/login" className="w-full">
-                            <Button variant="outline" className="w-full mt-4">
+                            <Button variant="outline" className="mt-4 w-full">
                                 Ir al login
                             </Button>
                         </Link>
@@ -106,10 +107,10 @@ function ResetPasswordForm() {
                                 <Input
                                     id="password"
                                     type="password"
-                                    placeholder="••••••••"
+                                    placeholder="********"
                                     className="pl-9"
                                     value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    onChange={(event) => setNewPassword(event.target.value)}
                                     required
                                     disabled={isLoading || !token}
                                 />
@@ -123,18 +124,32 @@ function ResetPasswordForm() {
                                 <Input
                                     id="confirmPassword"
                                     type="password"
-                                    placeholder="••••••••"
+                                    placeholder="********"
                                     className="pl-9"
                                     value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    onChange={(event) => setConfirmPassword(event.target.value)}
                                     required
                                     disabled={isLoading || !token}
                                 />
                             </div>
                         </div>
 
+                        <Alert className="bg-blue-50 border-blue-200">
+                            <Info className="h-4 w-4 text-blue-600" />
+                            <AlertDescription className="text-sm text-blue-800">
+                                <strong>Requisitos de contraseña:</strong>
+                                <ul className="list-disc list-inside mt-1 space-y-0.5">
+                                    <li>Mínimo 8 caracteres</li>
+                                    <li>Al menos una mayúscula</li>
+                                    <li>Al menos una minúscula</li>
+                                    <li>Al menos un número</li>
+                                    <li>Al menos un carácter especial</li>
+                                </ul>
+                            </AlertDescription>
+                        </Alert>
+
                         {error && (
-                            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+                            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
                                 {error}
                             </div>
                         )}
@@ -152,11 +167,11 @@ function ResetPasswordForm() {
                     </form>
                 )}
             </CardContent>
-            
+
             {!successMessage && (
-                <CardFooter className="flex justify-center flex-col space-y-2">
+                <CardFooter className="flex flex-col justify-center space-y-2">
                     <p className="text-sm text-muted-foreground">
-                        <Link href="/login" className="text-primary hover:underline font-medium">
+                        <Link href="/login" className="font-medium text-primary hover:underline">
                             Volver al login
                         </Link>
                     </p>
@@ -168,7 +183,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
     return (
-        <div className="min-h-screen flex bg-gray-50 items-center justify-center p-4">
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
             <Suspense fallback={<div>Cargando...</div>}>
                 <ResetPasswordForm />
             </Suspense>

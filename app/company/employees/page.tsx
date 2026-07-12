@@ -1,20 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Ban, Building2, CheckCircle, Eye, Filter, Loader2, Mail, Phone, Search, Users } from 'lucide-react';
 import { companyApi } from '@/lib/api/endpoints';
-import { Employee, CompanyArea } from '@/lib/types';
 import { getErrorMessage } from '@/lib/api/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Loader2, Users, Mail, Phone, Building2, Eye, Ban, CheckCircle, Filter } from 'lucide-react';
+import { CompanyArea, Employee } from '@/lib/types';
 import { EmployeeDetailsModal } from '@/components/company/EmployeeDetailsModal';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -25,11 +16,22 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 export default function CompanyEmployeesPage() {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [areas, setAreas] = useState<CompanyArea[]>([]);
-    const [selectedArea, setSelectedArea] = useState<string>('all');
+    const [selectedArea, setSelectedArea] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -61,7 +63,7 @@ export default function CompanyEmployeesPage() {
             setError(null);
             const areaId = selectedArea === 'all' ? undefined : selectedArea;
             const response = await companyApi.getEmployees(areaId);
-            const filteredEmployees = response.data.filter((emp: Employee) => emp.user?.role !== 'empresa_admin');
+            const filteredEmployees = response.data.filter((employee: Employee) => employee.user?.role !== 'empresa_admin');
             setEmployees(filteredEmployees);
         } catch (err) {
             setError(getErrorMessage(err));
@@ -77,11 +79,12 @@ export default function CompanyEmployeesPage() {
 
     const handleToggleBlockClick = (employee: Employee) => {
         if (employee.is_blocked) {
-            handleToggleBlock(employee);
-        } else {
-            setEmployeeToBlock(employee);
-            setBlockDialogOpen(true);
+            void handleToggleBlock(employee);
+            return;
         }
+
+        setEmployeeToBlock(employee);
+        setBlockDialogOpen(true);
     };
 
     const handleToggleBlock = async (employee: Employee) => {
@@ -92,7 +95,7 @@ export default function CompanyEmployeesPage() {
             } else {
                 await companyApi.blockEmployee(employee.id);
             }
-            loadEmployees();
+            await loadEmployees();
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {
@@ -101,13 +104,27 @@ export default function CompanyEmployeesPage() {
     };
 
     const handleBlockConfirm = async () => {
-        if (!employeeToBlock) return;
+        if (!employeeToBlock) {
+            return;
+        }
 
         const employee = employeeToBlock;
         setEmployeeToBlock(null);
         setBlockDialogOpen(false);
         await handleToggleBlock(employee);
     };
+
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const visibleEmployees = employees.filter((employee) => {
+        if (!normalizedSearch) {
+            return true;
+        }
+
+        const fullName = `${employee.first_name} ${employee.last_name}`.toLowerCase();
+        const email = employee.user?.email?.toLowerCase() || '';
+
+        return fullName.includes(normalizedSearch) || email.includes(normalizedSearch);
+    });
 
     if (isLoading && employees.length === 0) {
         return (
@@ -119,7 +136,7 @@ export default function CompanyEmployeesPage() {
 
     if (error && employees.length === 0) {
         return (
-            <div className="bg-destructive/10 text-destructive p-4 rounded-md">
+            <div className="rounded-md bg-destructive/10 p-4 text-destructive">
                 Error al cargar empleados: {error}
             </div>
         );
@@ -127,7 +144,7 @@ export default function CompanyEmployeesPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Empleados</h2>
                     <p className="text-muted-foreground">
@@ -136,46 +153,58 @@ export default function CompanyEmployeesPage() {
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Filtrar por área:</span>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <Filter className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">Filtrar por area:</span>
+                    </div>
+                    <Select value={selectedArea} onValueChange={setSelectedArea}>
+                        <SelectTrigger className="w-full sm:w-[220px]">
+                            <SelectValue placeholder="Todas las areas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todas las areas</SelectItem>
+                            {areas.map((area) => (
+                                <SelectItem key={area.id} value={area.id}>
+                                    {area.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
-                <Select value={selectedArea} onValueChange={setSelectedArea}>
-                    <SelectTrigger className="w-[200px]">
-                        <SelectValue placeholder="Todas las áreas" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Todas las áreas</SelectItem>
-                        {areas.map((area) => (
-                            <SelectItem key={area.id} value={area.id}>
-                                {area.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+
+                <div className="relative w-full lg:max-w-sm">
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        value={searchTerm}
+                        onChange={(event) => setSearchTerm(event.target.value)}
+                        placeholder="Buscar por nombre o mail"
+                        className="pl-9"
+                    />
+                </div>
             </div>
 
-            {employees.length === 0 ? (
+            {visibleEmployees.length === 0 ? (
                 <Card>
                     <CardContent className="flex flex-col items-center justify-center py-12">
-                        <Users className="h-12 w-12 text-muted-foreground mb-4" />
+                        <Users className="mb-4 h-12 w-12 text-muted-foreground" />
                         <p className="text-muted-foreground">
-                            {selectedArea === 'all'
-                                ? 'No hay empleados registrados'
-                                : 'No hay empleados en esta área'
-                            }
+                            {employees.length === 0
+                                ? (selectedArea === 'all' ? 'No hay empleados registrados' : 'No hay empleados en esta area')
+                                : 'No encontramos empleados con esa busqueda'}
                         </p>
-                        <p className="text-sm text-muted-foreground mt-2">
-                            Los empleados se registran desde la página de registro
+                        <p className="mt-2 text-sm text-muted-foreground">
+                            {employees.length === 0
+                                ? 'Los empleados se registran desde la pagina de registro'
+                                : 'Prueba con otro nombre o correo electronico'}
                         </p>
                     </CardContent>
                 </Card>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {employees.map((employee) => (
-                        <Card key={employee.id} className="hover:shadow-lg transition-shadow">
+                    {visibleEmployees.map((employee) => (
+                        <Card key={employee.id} className="flex flex-col transition-shadow hover:shadow-lg">
                             <CardHeader>
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
@@ -184,7 +213,7 @@ export default function CompanyEmployeesPage() {
                                         </CardTitle>
                                         {employee.area && (
                                             <CardDescription className="mt-1 flex items-center">
-                                                <Building2 className="h-3 w-3 mr-1" />
+                                                <Building2 className="mr-1 h-3 w-3" />
                                                 {employee.area.name}
                                             </CardDescription>
                                         )}
@@ -192,60 +221,59 @@ export default function CompanyEmployeesPage() {
                                     <Users className="h-8 w-8 text-primary" />
                                 </div>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="flex flex-1 flex-col justify-between">
                                 <div className="space-y-2">
                                     {employee.user?.email && (
                                         <div className="flex items-center text-sm text-muted-foreground">
-                                            <Mail className="h-4 w-4 mr-2" />
+                                            <Mail className="mr-2 h-4 w-4" />
                                             <span className="truncate">{employee.user.email}</span>
                                         </div>
                                     )}
 
                                     {employee.phone && (
                                         <div className="flex items-center text-sm text-muted-foreground">
-                                            <Phone className="h-4 w-4 mr-2" />
+                                            <Phone className="mr-2 h-4 w-4" />
                                             <span>{employee.phone}</span>
                                         </div>
                                     )}
 
                                     <div className="pt-2">
                                         <span
-                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${employee.is_blocked
-                                                ? 'bg-red-100 text-red-800'
-                                                : 'bg-green-100 text-green-800'
-                                                }`}
+                                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                                employee.is_blocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                                            }`}
                                         >
                                             {employee.is_blocked ? 'Bloqueado' : 'Activo'}
                                         </span>
                                     </div>
+                                </div>
 
-                                    <div className="pt-2 flex space-x-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="flex-1"
-                                            onClick={() => handleViewDetails(employee)}
-                                        >
-                                            <Eye className="h-4 w-4 mr-1" />
-                                            Detalles
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="flex-1"
-                                            onClick={() => handleToggleBlockClick(employee)}
-                                            disabled={togglingId === employee.id}
-                                        >
-                                            {togglingId === employee.id ? (
-                                                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                            ) : employee.is_blocked ? (
-                                                <CheckCircle className="h-4 w-4 mr-1" />
-                                            ) : (
-                                                <Ban className="h-4 w-4 mr-1" />
-                                            )}
-                                            {employee.is_blocked ? 'Activar' : 'Bloquear'}
-                                        </Button>
-                                    </div>
+                                <div className="flex space-x-2 pt-4">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex-1"
+                                        onClick={() => handleViewDetails(employee)}
+                                    >
+                                        <Eye className="mr-1 h-4 w-4" />
+                                        Detalles
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex-1"
+                                        onClick={() => handleToggleBlockClick(employee)}
+                                        disabled={togglingId === employee.id}
+                                    >
+                                        {togglingId === employee.id ? (
+                                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                                        ) : employee.is_blocked ? (
+                                            <CheckCircle className="mr-1 h-4 w-4" />
+                                        ) : (
+                                            <Ban className="mr-1 h-4 w-4" />
+                                        )}
+                                        {employee.is_blocked ? 'Activar' : 'Bloquear'}
+                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>
@@ -262,13 +290,13 @@ export default function CompanyEmployeesPage() {
             <AlertDialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                        <AlertDialogTitle>Estas seguro?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Estás a punto de bloquear a{' '}
+                            Estas a punto de bloquear a{' '}
                             <span className="font-semibold">
                                 {employeeToBlock?.first_name} {employeeToBlock?.last_name}
-                            </span> 
-                            . El empleado no podrá acceder al sistema hasta que sea desbloqueado.
+                            </span>.
+                            El empleado no podra acceder al sistema hasta que sea desbloqueado.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -277,7 +305,7 @@ export default function CompanyEmployeesPage() {
                             onClick={handleBlockConfirm}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
-                            Bloquear Empleado
+                            Bloquear empleado
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

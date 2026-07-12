@@ -32,7 +32,7 @@ export function RulesTab({ prode }: RulesTabProps) {
                         <TableBody>
                             {prode.prode_variable_configs && prode.prode_variable_configs.length > 0 ? (
                                 prode.prode_variable_configs
-                                    .filter(config => config.is_active)
+                                    .filter(config => config.is_active && !['scorers', 'goleador'].includes(config.prediction_variable.code))
                                     .map((config) => (
                                         <TableRow key={config.id}>
                                             <TableCell className="font-medium">

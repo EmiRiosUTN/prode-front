@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
-import { LogOut, Trophy, Building2 } from 'lucide-react';
+import { LogOut, Trophy, Building2, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ProdesLayout({ children }: { children: ReactNode }) {
@@ -82,6 +82,15 @@ export default function ProdesLayout({ children }: { children: ReactNode }) {
                                         <span className="text-xs font-bold">{getInitials(user?.employee?.first_name, user?.employee?.last_name)}</span>
                                     </div>
                                 </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => router.push('/prodes/change-password')}
+                                    className="text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                                >
+                                    <Settings className="h-4 w-4 sm:mr-2" />
+                                    <span className="hidden sm:inline">Cambiar clave</span>
+                                </Button>
                                 <Button 
                                     variant="ghost" 
                                     size="sm" 
